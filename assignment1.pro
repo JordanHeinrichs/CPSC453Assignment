@@ -15,6 +15,12 @@ MOC_DIR = ../release/.moc
 RCC_DIR = ../release/.rcc
 UI_DIR = ../release/.ui
 
+
+shaders.path = ../release/
+shaders.files = per-fragment-phong*
+
+INSTALLS += shaders
+
 # Input
 HEADERS += game.h renderer.h window.h
 SOURCES += game.cpp main.cpp renderer.cpp window.cpp
