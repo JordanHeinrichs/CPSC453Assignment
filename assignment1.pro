@@ -22,5 +22,5 @@ shaders.files = per-fragment-phong*
 INSTALLS += shaders
 
 # Input
-HEADERS += game.h renderer.h window.h
-SOURCES += game.cpp main.cpp renderer.cpp window.cpp
+HEADERS += game.h renderer.h window.h WindowUi.h I_WindowUi.h
+SOURCES += game.cpp main.cpp renderer.cpp window.cpp WindowUi.cpp

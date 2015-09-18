@@ -1,12 +1,10 @@
+#pragma once
 /*
  * CPSC 453 - Introduction to Computer Graphics
  * Assignment 1
  *
  * Window - Fundamental GUI for interacting within the scene
  */
-
-#ifndef WINDOW_H
-#define WINDOW_H
 
 #include <QMainWindow>
 #include <QApplication>
@@ -21,31 +19,21 @@ class Renderer;
 
 class Window : public QMainWindow
 {
-    // informs the qmake that a Qt moc_* file will need to be generated
     Q_OBJECT
-
 public:
-    // constructor
     Window(QWidget *parent = 0);
-
-    // destructor
-    ~Window();
-
+    virtual ~Window();
 
 private slots:
 
 
 private:
-    // Main widget for drawing
-    Renderer *renderer;
+    Renderer* renderer_;
 
     // Menu items and actions
-    QMenu * mFileMenu;
-    QAction * mQuitAction;
+    QMenu* fileMenu_;
+    QAction* quitAction_;
 
     // helper function for creating actions
     void createActions();
-
 };
-
-#endif // WINDOW_H

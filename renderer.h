@@ -1,12 +1,10 @@
+#pragma once
 /*
  * CPSC 453 - Introduction to Computer Graphics
  * Assignment 1
  *
  * Renderer - OpenGL widget for drawing scene
  */
-
-#ifndef RENDERER_H
-#define RENDERER_H
 
 #include <QWidget>
 #include <QOpenGLWidget>
@@ -20,21 +18,12 @@ using namespace std;
 
 class Renderer : public QOpenGLWidget, protected QOpenGLFunctions
 {
-
-    // informs the qmake that a Qt moc_* file will need to be generated
     Q_OBJECT
-
 public:
-    // constructor
     Renderer(QWidget *parent = 0);
-
-    // destructor
     virtual ~Renderer();
 
 protected:
-
-    // override fundamental drawing functions
-
     // Called when OpenGL is first initialized
     void initializeGL();
 
@@ -56,17 +45,16 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent * event);
 
 private:
-
     // member variables for shader manipulation
-    GLuint m_programID;
-    GLuint m_posAttr;
-    GLuint m_colAttr;
-    GLuint m_norAttr;
-    GLuint m_MMatrixUniform; // model matrix
-    GLuint m_VMatrixUniform; // view matrix
-    GLuint m_PMatrixUniform; // projection matrix
+    GLuint programID_;
+    GLuint posAttr_;
+    GLuint colAttr_;
+    GLuint norAttr_;
+    GLuint MMatrixUniform_; // model matrix
+    GLuint VMatrixUniform_; // view matrix
+    GLuint PMatrixUniform_; // projection matrix
 
-    QOpenGLShaderProgram *m_program;
+    QOpenGLShaderProgram *program_;
 
     // for storing triangle vertices and colours
     vector<GLfloat> triVertices;
@@ -76,9 +64,5 @@ private:
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
 
-    // helper function for drawing bordering triangles
     void generateBorderTriangles();
-
 };
-
-#endif // RENDERER_H

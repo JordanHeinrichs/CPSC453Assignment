@@ -1,48 +1,40 @@
 #include "window.h"
 #include "renderer.h"
 
-Window::Window(QWidget *parent) :
+Window::Window(QWidget* parent) :
     QMainWindow(parent)
 {
     setWindowTitle("CPSC453: Tetromino Apocalypse");
 
     // Create the main drawing object
-    renderer = new Renderer();
-
-    // Create the actions to be used by the menus
+    renderer_ = new Renderer();
     createActions();
 
     // Create the menus
     // Setup the file menu
-    mFileMenu = menuBar()->addMenu(tr("&File"));
-    mFileMenu->addAction(mQuitAction);  // add quitting
+    fileMenu_ = menuBar()->addMenu("&File");
+    fileMenu_->addAction(quitAction_);
 
     // Setup the application's widget collection
-    QVBoxLayout * layout = new QVBoxLayout();
+    QVBoxLayout* layout = new QVBoxLayout();
 
-    // Add renderer
-    layout->addWidget(renderer);
-    renderer->setMinimumSize(300, 600);
+    layout->addWidget(renderer_);
+    renderer_->setMinimumSize(300, 600);
 
-    QWidget * mainWidget = new QWidget();
+    QWidget* mainWidget = new QWidget();
     mainWidget->setLayout(layout);
     setCentralWidget(mainWidget);
-
 }
 
-// helper function for creating actions
-void Window::createActions()
-{
-    // Quits the application
-    mQuitAction = new QAction(tr("&Quit"), this);
-    mQuitAction->setShortcut(QKeySequence(Qt::Key_Q));
-    mQuitAction->setStatusTip(tr("Quits the application"));
-    connect(mQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-}
-
-// destructor
 Window::~Window()
 {
-    delete renderer;
+    delete renderer_;
+}
+
+void Window::createActions()
+{
+    quitAction_ = new QAction("&Quit", this);
+    quitAction_->setShortcut(QKeySequence(Qt::Key_Q));
+    quitAction_->setStatusTip("Quits the application");
+    connect(quitAction_, SIGNAL(triggered()), qApp, SLOT(quit()));
 }

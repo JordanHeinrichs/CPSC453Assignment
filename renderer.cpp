@@ -3,17 +3,13 @@
 #include <QOpenGLBuffer>
 #include <cmath>
 
-// constructor
 Renderer::Renderer(QWidget *parent)
     : QOpenGLWidget(parent)
 {
-
 }
 
-// constructor
 Renderer::~Renderer()
 {
-
 }
 
 // called once by Qt GUI system, to allow initialization for OpenGL requirements
@@ -26,41 +22,36 @@ void Renderer::initializeGL()
     glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
 
     // links to and compiles the shaders, used for drawing simple objects
-    m_program = new QOpenGLShaderProgram(this);
-    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, "per-fragment-phong.vs.glsl");
-    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, "per-fragment-phong.fs.glsl");
-    m_program->link();
-    m_posAttr = m_program->attributeLocation("position_attr");
-    m_colAttr = m_program->attributeLocation("colour_attr");
-    m_norAttr = m_program->attributeLocation("normal_attr");
-    m_PMatrixUniform = m_program->uniformLocation("proj_matrix");
-    m_VMatrixUniform = m_program->uniformLocation("view_matrix");
-    m_MMatrixUniform = m_program->uniformLocation("model_matrix");
-    m_programID = m_program->programId();
-
+    program_ = new QOpenGLShaderProgram(this);
+    program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "per-fragment-phong.vs.glsl");
+    program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "per-fragment-phong.fs.glsl");
+    program_->link();
+    posAttr_ = program_->attributeLocation("position_attr");
+    colAttr_ = program_->attributeLocation("colour_attr");
+    norAttr_ = program_->attributeLocation("normal_attr");
+    PMatrixUniform_ = program_->uniformLocation("proj_matrix");
+    VMatrixUniform_ = program_->uniformLocation("viewMatrix");
+    MMatrixUniform_ = program_->uniformLocation("model_matrix");
+    programID_ = program_->programId();
 }
 
 // called by the Qt GUI system, to allow OpenGL drawing commands
 void Renderer::paintGL()
 {
     // Clear the screen buffers
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set the current shader program
-
-    glUseProgram(m_programID);
+    glUseProgram(programID_);
 
     // Modify the current projection matrix so that we move the
     // camera away from the origin.  We'll draw the game at the
     // origin, and we need to back up to see it.
-
-    QMatrix4x4 view_matrix;
-    view_matrix.translate(0.0f, 0.0f, -40.0f);
-    glUniformMatrix4fv(m_VMatrixUniform, 1, false, view_matrix.data());
+    QMatrix4x4 viewMatrix;
+    viewMatrix.translate(0.0f, 0.0f, -40.0f);
+    glUniformMatrix4fv(VMatrixUniform_, 1, false, viewMatrix.data());
 
     // Not implemented: set up lighting (if necessary)
-
     // Not implemented: scale and rotate the scene
 
     QMatrix4x4 model_matrix;
@@ -71,12 +62,11 @@ void Renderer::paintGL()
     // it appear centered in the window.
 
     model_matrix.translate(-5.0f, -12.0f, 0.0f);
-    glUniformMatrix4fv(m_MMatrixUniform, 1, false, model_matrix.data());
+    glUniformMatrix4fv(MMatrixUniform_, 1, false, model_matrix.data());
 
     // Not implemented: actually draw the current game state.
     // Here's some test code that draws red triangles at the
     // corners of the game board.
-
     generateBorderTriangles();
 
     // draw border
@@ -84,25 +74,24 @@ void Renderer::paintGL()
     {
         // pass in the list of vertices and their associated colours
         // 3 coordinates per vertex, or per colour
-        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, &triVertices[0]);
-        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, 0, &triColours[0]);
-        glVertexAttribPointer(m_norAttr, 3, GL_FLOAT, GL_FALSE, 0, &triNormals[0]);
+        glVertexAttribPointer(posAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triVertices[0]);
+        glVertexAttribPointer(colAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triColours[0]);
+        glVertexAttribPointer(norAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triNormals[0]);
 
-        glEnableVertexAttribArray(m_posAttr);
-        glEnableVertexAttribArray(m_colAttr);
-        glEnableVertexAttribArray(m_norAttr);
+        glEnableVertexAttribArray(posAttr_);
+        glEnableVertexAttribArray(colAttr_);
+        glEnableVertexAttribArray(norAttr_);
 
         // draw triangles
         glDrawArrays(GL_TRIANGLES, 0, triVertices.size()/3); // 3 coordinates per vertex
 
-        glDisableVertexAttribArray(m_norAttr);
-        glDisableVertexAttribArray(m_colAttr);
-        glDisableVertexAttribArray(m_posAttr);
+        glDisableVertexAttribArray(norAttr_);
+        glDisableVertexAttribArray(colAttr_);
+        glDisableVertexAttribArray(posAttr_);
     }
 
     // deactivate the program
-    m_program->release();
-
+    program_->release();
 }
 
 // called by the Qt GUI system, to allow OpenGL to respond to widget resizing
@@ -112,14 +101,14 @@ void Renderer::resizeGL(int w, int h)
     Q_UNUSED(w); Q_UNUSED(h);
 
     // update viewing projections
-    glUseProgram(m_programID);
+    glUseProgram(programID_);
 
     // Set up perspective projection, using current size and aspect
     // ratio of display
-    QMatrix4x4 projection_matrix;
-    projection_matrix.perspective(40.0f, (GLfloat)width() / (GLfloat)height(),
+    QMatrix4x4 projectionMatrix;
+    projectionMatrix.perspective(40.0f, (GLfloat)width() / (GLfloat)height(),
                                   0.1f, 1000.0f);
-    glUniformMatrix4fv(m_PMatrixUniform, 1, false, projection_matrix.data());
+    glUniformMatrix4fv(PMatrixUniform_, 1, false, projectionMatrix.data());
 
     glViewport(0, 0, width(), height());
 
@@ -155,14 +144,13 @@ void Renderer::generateBorderTriangles()
 
     // shader supports per-vertex colour; add colour for each vertex add colours to colour list - use current colour
     QColor borderColour = Qt::red;
-    float colourList [] = { (float)borderColour.redF(), (float)borderColour.greenF(), (float)borderColour.blueF() };
-    float normalList [] = { 0.0f, 0.0f, 1.0f }; // facing viewer
+    float colourList[] = { (float)borderColour.redF(), (float)borderColour.greenF(), (float)borderColour.blueF() };
+    float normalList[] = { 0.0f, 0.0f, 1.0f }; // facing viewer
     for (int v = 0; v < 4 * 3; v++)
     {
         triColours.insert(triColours.end(), colourList, colourList + 3); // 3 coordinates per vertex
         triNormals.insert(triNormals.end(), normalList, normalList + 3); // 3 coordinates per vertex
     }
-
 }
 
 // override mouse press event
