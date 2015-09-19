@@ -1,21 +1,31 @@
 #pragma once
 /*
- * CPSC 453 - Introduction to Computer Graphics
- * Assignment 1
- */
-class I_WindowUi
+* CPSC 453 - Introduction to Computer Graphics
+* Assignment 1
+*/
+
+#include <QMainWindow>
+
+class I_WindowUi : public QMainWindow
 {
+    Q_OBJECT
 public:
     virtual ~I_WindowUi() {}
 
-protected: // signals:
-    virtual void newGameRequested() = 0;
-    virtual void resetRequested() = 0;
-    virtual void wireframeViewModeRequested() = 0;
-    virtual void faceViewModeRequested() = 0;
-    virtual void multicolouredViewModeRequested() = 0;
-    virtual void pauseGameRequested() = 0;
-    virtual void speedUpGameRequested() = 0;
-    virtual void slowDownGameRequested() = 0;
-    virtual void autoIncreaseGameSpeedRequested() = 0;
+signals:
+    void newGameRequested();
+    void resetRequested();
+    void wireframeViewModeRequested();
+    void faceViewModeRequested();
+    void multicolouredViewModeRequested();
+    void pauseGameRequested();
+    void speedUpGameRequested();
+    void slowDownGameRequested();
+    void autoIncreaseGameSpeedRequested();
+
+    void movePieceLeftRequested();
+    void movePieceRightRequested();
+    void rotatePieceCounterClockwiseRequested();
+    void rotatePieceClockwiseRequested();
+    void dropPieceRequested();
 };

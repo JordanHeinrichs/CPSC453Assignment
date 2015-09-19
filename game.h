@@ -12,10 +12,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "I_Game.h"
+
 class Piece {
 public:
   Piece();
-  Piece(const char *desc, int cindex, 
+  Piece(const char *desc, int cindex,
          int left, int top, int right, int bottom);
 
   Piece& operator =(const Piece& other);
@@ -40,11 +42,11 @@ private:
   int margins_[4];
 };
 
-class Game
+class Game : public I_Game
 {
 public:
   // Create a new game instance with a well of the given dimensions.
-  // Note that internally, the board has four extra rows, to hold a 
+  // Note that internally, the board has four extra rows, to hold a
   // piece that has just begun to fall.
   Game(int width, int height);
 
@@ -54,7 +56,7 @@ public:
   // on top.
   void reset();
 
-  // Advance the game by one tick.  This usually just pushes the 
+  // Advance the game by one tick.  This usually just pushes the
   // currently falling piece down by one row.  It can sometimes cause
   // one or more rows to be filled and removed.  This method returns
   // three kinds of values:
@@ -69,7 +71,7 @@ public:
   bool moveLeft();
   bool moveRight();
 
-  // Drop the current piece to the lowest position it can legally 
+  // Drop the current piece to the lowest position it can legally
   // occupy.  Returns whether anything happened.
   bool drop();
 
@@ -79,7 +81,7 @@ public:
   bool rotateCCW();
 
   int getWidth() const
-  { 
+  {
     return board_width_;
   }
   int getHeight() const

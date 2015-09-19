@@ -16,10 +16,55 @@ WindowUi::WindowUi(QWidget* mainWidget)
 
     mainWidget->setMinimumSize(300, 600);
     setCentralWidget(mainWidget);
+
+    setupKeyboardHandling();
 }
 
 WindowUi::~WindowUi()
 {
+}
+
+void WindowUi::setDrawMode(QAction* action)
+{
+    if (action == wireframeModeAction_)
+    {
+        emit wireframeViewModeRequested();
+    }
+    else if (action == frameModeAction_)
+    {
+        emit faceViewModeRequested();
+    }
+    else
+    {
+        emit multicolouredViewModeRequested();
+    }
+}
+
+bool WindowUi::eventFilter(QObject* object, QEvent* event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        switch(keyEvent->key())
+        {
+        case Qt::Key_Right:
+            emit movePieceRightRequested();
+            break;
+        case Qt::Key_Left:
+            emit movePieceLeftRequested();
+            break;
+        case Qt::Key_Up:
+            emit rotatePieceCounterClockwiseRequested();
+            break;
+        case Qt::Key_Down:
+            emit rotatePieceClockwiseRequested();
+            break;
+        case Qt::Key_Space:
+            emit dropPieceRequested();
+            break;
+        }
+    }
+    return QObject::eventFilter(object, event);
 }
 
 void WindowUi::createFileMenu()
@@ -104,18 +149,7 @@ void WindowUi::createGameMenu()
     gameMenu->addAction(autoIncreaseSpeedAction);
 }
 
-void WindowUi::setDrawMode(QAction* action)
+void WindowUi::setupKeyboardHandling()
 {
-    if (action == wireframeModeAction_)
-    {
-        emit wireframeViewModeRequested();
-    }
-    else if (action == frameModeAction_)
-    {
-        emit faceViewModeRequested();
-    }
-    else
-    {
-        emit multicolouredViewModeRequested();
-    }
+    qApp->installEventFilter(this);
 }

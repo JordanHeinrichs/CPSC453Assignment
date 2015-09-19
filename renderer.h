@@ -1,15 +1,16 @@
 #pragma once
 /*
- * CPSC 453 - Introduction to Computer Graphics
- * Assignment 1
- *
- * Renderer - OpenGL widget for drawing scene
- */
+* CPSC 453 - Introduction to Computer Graphics
+* Assignment 1
+*
+* Renderer - OpenGL widget for drawing scene
+*/
 
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
+#include <QKeyEvent.h>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QMouseEvent>
@@ -33,16 +34,9 @@ protected:
     // Called when the window needs to be redrawn
     void paintGL();
 
-    // override mouse event functions
-
-    // Called when a mouse button is pressed
-    virtual void mousePressEvent(QMouseEvent * event);
-
-    // Called when a mouse button is released
-    virtual void mouseReleaseEvent(QMouseEvent * event);
-
-    // Called when the mouse moves
-    virtual void mouseMoveEvent(QMouseEvent * event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
 
 private:
     // member variables for shader manipulation

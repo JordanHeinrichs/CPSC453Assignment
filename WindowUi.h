@@ -4,35 +4,27 @@
  * Assignment 1
  */
 
-#include <QMainWindow>
 #include <I_WindowUi.h>
 class QAction;
 
-class WindowUi : public QMainWindow, public I_WindowUi
+class WindowUi : public I_WindowUi
 {
     Q_OBJECT
 public:
     explicit WindowUi(QWidget* mainWidget);
     virtual ~WindowUi();
 
-signals:
-    void newGameRequested();
-    void resetRequested();
-    void wireframeViewModeRequested();
-    void faceViewModeRequested();
-    void multicolouredViewModeRequested();
-    void pauseGameRequested();
-    void speedUpGameRequested();
-    void slowDownGameRequested();
-    void autoIncreaseGameSpeedRequested();
-
 private slots:
     void setDrawMode(QAction* action);
+
+protected:
+    bool eventFilter(QObject* object, QEvent* event);
 
 private:
     void createFileMenu();
     void createDrawMenu();
     void createGameMenu();
+    void setupKeyboardHandling();
 
 private:
     QAction* wireframeModeAction_;
