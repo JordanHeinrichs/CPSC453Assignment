@@ -10,7 +10,7 @@ public:
 
 public slots:
     virtual void startGame() = 0;
-    virtual void stopGame() = 0;
+    virtual void togglePauseGame() = 0;
     virtual void increaseRate() = 0;
     virtual void decreaseRate() = 0;
     virtual void autoIncreaseRate() = 0;

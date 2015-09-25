@@ -16,7 +16,7 @@ public:
         Multicoloured
     };
 
-    void setViewMode(ViewMode viewMode);
+    virtual void setViewMode(ViewMode viewMode) = 0;
     // some sort of way to pass the blocks in
-    void renderGameBlocks();
+    virtual void renderGameBlocks() = 0;
 };

@@ -1,6 +1,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
+#include <QKeyEvent>
 #include <QMenu>
 #include <QMenuBar>
 
