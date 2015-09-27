@@ -1,5 +1,5 @@
 TEMPLATE = lib
-INCLUDEPATH += . ..
+INCLUDEPATH += ..
 QT+=widgets
 
 CONFIG += staticlib

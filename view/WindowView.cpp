@@ -52,7 +52,7 @@ void WindowView::setupGameTickerOptions()
 void WindowView::setupGameRedrawing()
 {
     // TODO figure out best way to pass in game state. Learn how the drawing works.
-    // connect(&game_, SIGNAL(changeStateChanged(const GameState&)), renderer_, SLOT(redrawGame(const GameState&)));
+    // connect(&game_, SIGNAL(stateChanged(const GameState&)), renderer_, SLOT(redrawGame(const GameState&)));
 }
 
 void WindowView::setViewModeWireframe()

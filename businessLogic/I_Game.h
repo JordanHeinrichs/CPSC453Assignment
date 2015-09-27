@@ -28,5 +28,5 @@ public:
     virtual int& get(int r, int c) = 0;
 
 signals:
-    void changeStateChanged();
+    void stateChanged();
 };
