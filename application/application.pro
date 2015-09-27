@@ -9,6 +9,7 @@ QMAKE_CXXFLAGS += -Werror
 CONFIG += release
 
 LIBS += -L$$(BUILD_DIR)/.lib -lview -lbusinessLogic
+POST_TARGETDEPS += $$(BUILD_DIR)/.lib/libbusinessLogic.a $$(BUILD_DIR)/.lib/libview.a
 INCLUDEPATH += . ..
 
 DESTDIR = $$(BUILD_DIR)/
