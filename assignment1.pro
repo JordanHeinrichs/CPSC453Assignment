@@ -1,9 +1,11 @@
 TEMPLATE = subdirs
-CONFIG  += ordered
 
 SUBDIRS  = \
     businessLogic \
     view \
     external \
-#    tests \
+    tests \
     application
+
+tests.depends += businessLogic view
+application.depends += tests businessLogic view

@@ -29,6 +29,7 @@ GameTickerService::~GameTickerService()
 void GameTickerService::startGame()
 {
     tickTimer_.start();
+    game_.reset();
 }
 
 void GameTickerService::togglePauseGame()

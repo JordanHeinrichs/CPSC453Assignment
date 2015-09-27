@@ -1,3 +1,14 @@
 #!/bin/bash -e
 
 export BUILD_DIR="$PWD/../release"
+
+
+mkdir -p $BUILD_DIR/.obj
+mkdir -p $BUILD_DIR/.moc
+mkdir -p $BUILD_DIR/.rcc
+mkdir -p $BUILD_DIR/.ui
+mkdir -p $BUILD_DIR/.tests
+mkdir -p $BUILD_DIR/.tests/.obj
+mkdir -p $BUILD_DIR/.tests/.moc
+mkdir -p $BUILD_DIR/.tests/.rcc
+mkdir -p $BUILD_DIR/.tests/.ui

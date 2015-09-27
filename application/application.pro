@@ -6,6 +6,7 @@ HEADERS += *.h
 SOURCES += *.cpp
 
 QMAKE_CXXFLAGS += -Werror
+CONFIG += release
 
 LIBS += -L$$(BUILD_DIR)/.lib -lview -lbusinessLogic
 INCLUDEPATH += . ..

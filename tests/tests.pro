@@ -1,15 +1,15 @@
 TEMPLATE = app
 QT+=widgets testlib
 
-HEADERS += *.h
-SOURCES += *.cpp
+HEADERS += TestGameTickerService.h Mock*.h
+SOURCES += main.cpp TestGameTickerService.cpp Mock*.cpp
 
 QMAKE_CXXFLAGS += -Werror
 
-# CONFIG = testcase
-
 LIBS += -L$$(BUILD_DIR)/.lib -Lgtest/lib -lview -lbusinessLogic -lgmock -lgtest
 INCLUDEPATH += .. gtest/include
+
+CONFIG += testcase release
 
 DESTDIR = $$(BUILD_DIR)/.tests
 OBJECTS_DIR = $$(BUILD_DIR)/.tests/.obj
