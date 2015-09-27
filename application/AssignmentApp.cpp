@@ -3,22 +3,23 @@
 * Assignment 1
 */
 
-#include "AssignmentApp.h"
-#include "game.h"
-#include "Renderer.h"
-#include "WindowUi.h"
-#include "WindowView.h"
+#include "application/AssignmentApp.h"
+#include "businessLogic/game.h"
+#include "businessLogic/GameTickerService.h"
+#include "view/Renderer.h"
+#include "view/WindowUi.h"
+#include "view/WindowView.h"
 
 AssignmentApp::AssignmentApp(int argc, char *argv[])
 : QApplication(argc, argv)
 , renderer_(new Renderer())
 , windowUi_(new WindowUi(renderer_.data()))
-, gameBusinessLogic_(new Game())
-, windowView_(new WindowView(*windowUi_, *gameBusinessLogic_))
+, game_(new Game(1,1)) // TODO
+, gameTickerService_(new GameTickerService(*game_))
+, windowView_(new WindowView(*game_, *windowUi_, *renderer_, *gameTickerService_))
 {
 }
 
 AssignmentApp::~AssignmentApp()
 {
 }
-

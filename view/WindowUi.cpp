@@ -19,6 +19,7 @@ WindowUi::WindowUi(QWidget* mainWidget)
     setCentralWidget(mainWidget);
 
     setupKeyboardHandling();
+    show();
 }
 
 WindowUi::~WindowUi()

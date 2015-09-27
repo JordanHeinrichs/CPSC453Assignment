@@ -5,14 +5,10 @@
  * Entry point for execution into the program
  */
 
-#include "window.h"
-#include <QApplication>
+#include "application/AssignmentApp.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    Window w;
-    w.show();
-
-    return a.exec();
+    AssignmentApp app(argc, argv);
+    return app.exec();
 }

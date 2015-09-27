@@ -4,7 +4,7 @@
  * Assignment 1
  */
 
-#include <I_WindowUi.h>
+#include <view/I_WindowUi.h>
 class QAction;
 
 class WindowUi : public I_WindowUi

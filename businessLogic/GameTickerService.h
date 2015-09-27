@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QTimer>
-#include "I_GameTickerService.h"
+#include "businessLogic/I_GameTickerService.h"
 class I_Game;
 
-class GameTickerService : I_GameTickerService
+class GameTickerService : public I_GameTickerService
 {
     Q_OBJECT
 public:

@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+export BUILD_DIR="$PWD/../release"

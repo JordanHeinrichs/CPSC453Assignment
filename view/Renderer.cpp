@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "view/Renderer.h"
 #include <QTextStream>
 #include <QOpenGLBuffer>
 #include <cmath>

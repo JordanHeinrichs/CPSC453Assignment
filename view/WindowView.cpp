@@ -1,8 +1,8 @@
-#include "I_Game.h"
-#include "I_GameTickerService.h"
-#include "I_Renderer.h"
-#include "I_WindowUi.h"
-#include "WindowView.h"
+#include "businessLogic/I_Game.h"
+#include "businessLogic/I_GameTickerService.h"
+#include "view/I_Renderer.h"
+#include "view/I_WindowUi.h"
+#include "view/WindowView.h"
 
 WindowView::WindowView(I_Game& game,
    I_WindowUi& windowUi,

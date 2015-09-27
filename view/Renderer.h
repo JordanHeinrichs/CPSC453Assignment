@@ -15,14 +15,20 @@
 #include <QOpenGLShader>
 #include <QMouseEvent>
 
+#include "view/I_Renderer.h"
+
 using namespace std;
 
-class Renderer : public QOpenGLWidget, protected QOpenGLFunctions
+class Renderer : public QOpenGLWidget, protected QOpenGLFunctions, public I_Renderer
 {
     Q_OBJECT
 public:
     Renderer(QWidget *parent = 0);
     virtual ~Renderer();
+
+    // TODO
+    void setViewMode(ViewMode /*viewMode*/) {}
+    void renderGameBlocks() {}
 
 protected:
     // Called when OpenGL is first initialized

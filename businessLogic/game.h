@@ -12,7 +12,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "I_Game.h"
+#include "businessLogic/I_Game.h"
 
 class Piece {
 public:

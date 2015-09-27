@@ -6,10 +6,11 @@
 
 #include <QApplication>
 #include <QScopedPointer>
+class Game;
+class GameTickerService;
 class Renderer;
 class WindowUi;
 class WindowView;
-class Game;
 
 class AssignmentApp : public QApplication
 {
@@ -21,6 +22,7 @@ public:
 private:
     QScopedPointer<Renderer> renderer_;
     QScopedPointer<WindowUi> windowUi_;
-    QScopedPointer<Game> gameBusinessLogic_;
+    QScopedPointer<Game> game_;
+    QScopedPointer<GameTickerService> gameTickerService_;
     QScopedPointer<WindowView> windowView_;
 };

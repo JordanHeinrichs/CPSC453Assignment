@@ -1,5 +1,5 @@
-#include "GameTickerService.h"
-#include "I_Game.h"
+#include "businessLogic/GameTickerService.h"
+#include "businessLogic/I_Game.h"
 
 namespace
 {
