@@ -43,7 +43,8 @@ void WindowView::setupGameOptions()
 void WindowView::setupGameTickerOptions()
 {
     connect(&windowUi_, SIGNAL(newGameRequested()), &gameTickerService_, SLOT(startGame()));
-    connect(&windowUi_, SIGNAL(pauseGameRequested()), &gameTickerService_, SLOT(togglePauseGame()));
+    connect(&windowUi_, SIGNAL(pauseGameRequested()), &gameTickerService_, SLOT(pauseGame()));
+    connect(&windowUi_, SIGNAL(unpauseGameRequested()), &gameTickerService_, SLOT(unpauseGame()));
     connect(&windowUi_, SIGNAL(speedUpGameRequested()), &gameTickerService_, SLOT(increaseRate()));
     connect(&windowUi_, SIGNAL(slowDownGameRequested()), &gameTickerService_, SLOT(decreaseRate()));
     connect(&windowUi_, SIGNAL(autoIncreaseGameSpeedRequested()), &gameTickerService_, SLOT(autoIncreaseRate()));

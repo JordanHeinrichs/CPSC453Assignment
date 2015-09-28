@@ -3,12 +3,15 @@
 #include "businessLogic/GameTickerService.h"
 #include "gtest/gtest.h"
 #include "tests/MockGame.h"
+#include "tests/MockTimer.h"
 
-class TestGameTickerService : public ::testing::Test
+using namespace ::testing;
+
+class TestGameTickerService : public Test
 {
 protected:
     TestGameTickerService()
-    : patient_(game_)
+    : patient_(game_, tickTimer_, autoIncreaseTimer_)
     {
     }
 
@@ -16,6 +19,9 @@ protected:
     {
     }
 
-    ::testing::NiceMock<MockGame> game_;
+    NiceMock<MockGame> game_;
+    NiceMock<MockTimer> tickTimer_;
+    NiceMock<MockTimer> autoIncreaseTimer_;
+
     GameTickerService patient_;
 };

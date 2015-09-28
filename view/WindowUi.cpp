@@ -7,6 +7,11 @@
 
 #include "WindowUi.h"
 
+namespace
+{
+    const QString PAUSE_TEXT = "&Pause";
+}
+
 WindowUi::WindowUi(QWidget* mainWidget)
 {
     createFileMenu();
@@ -39,6 +44,20 @@ void WindowUi::setDrawMode(QAction* action)
     else
     {
         emit multicolouredViewModeRequested();
+    }
+}
+
+void WindowUi::pauseActionPressed()
+{
+    if (pauseAction_->text() == PAUSE_TEXT)
+    {
+        pauseAction_->setText("un&pause");
+        emit pauseGameRequested();
+    }
+    else
+    {
+        pauseAction_->setText(PAUSE_TEXT);
+        emit unpauseGameRequested();
     }
 }
 
@@ -124,10 +143,10 @@ void WindowUi::createDrawMenu()
 
 void WindowUi::createGameMenu()
 {
-    QAction* pauseAction = new QAction("&Pause", this);
-    pauseAction->setShortcut(QKeySequence(Qt::Key_P));
-    pauseAction->setStatusTip("Pause the game.");
-    connect(pauseAction, SIGNAL(triggered()), this, SIGNAL(pauseGameRequested()));
+    QAction* pauseAction_ = new QAction(PAUSE_TEXT, this);
+    pauseAction_->setShortcut(QKeySequence(Qt::Key_P));
+    pauseAction_->setStatusTip("Pause the game.");
+    connect(pauseAction_, SIGNAL(triggered()), this, SLOT(pauseActionPressed()));
 
     QAction* speedUpAction = new QAction("Speed up", this);
     speedUpAction->setShortcut(QKeySequence(Qt::Key_PageUp));
@@ -145,7 +164,7 @@ void WindowUi::createGameMenu()
     connect(autoIncreaseSpeedAction, SIGNAL(triggered()), this, SIGNAL(autoIncreaseGameSpeedRequested()));
 
     QMenu* gameMenu = menuBar()->addMenu("&Game");
-    gameMenu->addAction(pauseAction);
+    gameMenu->addAction(pauseAction_);
     gameMenu->addAction(speedUpAction);
     gameMenu->addAction(slowDownAction);
     gameMenu->addAction(autoIncreaseSpeedAction);

@@ -1,5 +1,7 @@
 #include "businessLogic/GameTickerService.h"
 #include "businessLogic/I_Game.h"
+#include "infrastructure/ConnectionHelpers.h"
+#include "infrastructure/I_Timer.h"
 
 namespace
 {
@@ -14,10 +16,11 @@ namespace
     const int GAME_OVER = -1;
 }
 
-GameTickerService::GameTickerService(I_Game& game)
+GameTickerService::GameTickerService(I_Game& game, I_Timer& tickTimer, I_Timer& autoIncreaseTimer)
 : game_(game)
+, tickTimer_(tickTimer)
+, autoIncreaseTimer_( autoIncreaseTimer)
 , isAutoIncreaseModeActive_(false)
-, gamePaused_(false)
 {
     setupTimers();
 }
@@ -32,22 +35,18 @@ void GameTickerService::startGame()
     game_.reset();
 }
 
-void GameTickerService::togglePauseGame()
+void GameTickerService::pauseGame()
 {
-    if (gamePaused_)
+    tickTimer_.stop();
+    autoIncreaseTimer_.stop();
+}
+
+void GameTickerService::unpauseGame()
+{
+    tickTimer_.start();
+    if (isAutoIncreaseModeActive_)
     {
-        gamePaused_ = false;
-        tickTimer_.start();
-        if (isAutoIncreaseModeActive_)
-        {
-            autoIncreaseTimer_.start();
-        }
-    }
-    else
-    {
-        gamePaused_ = true;
-        tickTimer_.stop();
-        autoIncreaseTimer_.stop();
+        autoIncreaseTimer_.start();
     }
 }
 
@@ -91,10 +90,10 @@ void GameTickerService::setupTimers()
 {
     tickTimer_.setSingleShot(false);
     tickTimer_.setInterval(INITIAL_TICK_INTERVAL);
-    connect(&tickTimer_, SIGNAL(timeout()), this, SLOT(tickGame()));
+    safeConnect(&tickTimer_, SIGNAL(timeout()), this, SLOT(tickGame()));
     autoIncreaseTimer_.setSingleShot(false);
     autoIncreaseTimer_.setInterval(AUTO_INCREASE_INTERVAL);
-    connect(&autoIncreaseTimer_, SIGNAL(timeout()), this, SLOT(increaseRate()));
+    safeConnect(&autoIncreaseTimer_, SIGNAL(timeout()), this, SLOT(increaseRate()));
 }
 
 void GameTickerService::stopAutoIncreasing()

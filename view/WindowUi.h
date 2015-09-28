@@ -16,6 +16,7 @@ public:
 
 private slots:
     void setDrawMode(QAction* action);
+    void pauseActionPressed();
 
 protected:
     bool eventFilter(QObject* object, QEvent* event);
@@ -27,6 +28,9 @@ private:
     void setupKeyboardHandling();
 
 private:
+    QAction* pauseAction_;
+    QAction* unpauseAction_;
+
     QAction* wireframeModeAction_;
     QAction* frameModeAction_;
     QAction* multicolouredModeAction_;

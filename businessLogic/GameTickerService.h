@@ -3,17 +3,19 @@
 #include <QTimer>
 #include "businessLogic/I_GameTickerService.h"
 class I_Game;
+class I_Timer;
 
 class GameTickerService : public I_GameTickerService
 {
     Q_OBJECT
 public:
-    explicit GameTickerService(I_Game& game);
+    GameTickerService(I_Game& game, I_Timer& tickTimer, I_Timer& autoIncreaseTimer);
     virtual ~GameTickerService();
 
 public slots:
     void startGame();
-    void togglePauseGame();
+    void pauseGame();
+    void unpauseGame();
     void increaseRate();
     void decreaseRate();
     void autoIncreaseRate();
@@ -28,8 +30,7 @@ private:
 
 private:
     I_Game& game_;
-    QTimer tickTimer_;
-    QTimer autoIncreaseTimer_;
+    I_Timer& tickTimer_;
+    I_Timer& autoIncreaseTimer_;
     bool isAutoIncreaseModeActive_;
-    bool gamePaused_;
 };

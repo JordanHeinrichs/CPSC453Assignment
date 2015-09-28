@@ -6,11 +6,13 @@ HEADERS += *.h
 SOURCES += *.cpp
 
 QMAKE_CXXFLAGS += -Werror
-CONFIG += release
 
-LIBS += -L$$(BUILD_DIR)/.lib -lview -lbusinessLogic
-POST_TARGETDEPS += $$(BUILD_DIR)/.lib/libbusinessLogic.a $$(BUILD_DIR)/.lib/libview.a
-INCLUDEPATH += . ..
+LIBS += -L$$(BUILD_DIR)/.lib -lview -lbusinessLogic -linfrastructure
+POST_TARGETDEPS += \
+    $$(BUILD_DIR)/.lib/libbusinessLogic.a
+    $$(BUILD_DIR)/.lib/libview.a
+    $$(BUILD_DIR)/.lib/infrastructure.a
+INCLUDEPATH += ..
 
 DESTDIR = $$(BUILD_DIR)/
 OBJECTS_DIR = $$(BUILD_DIR)/.obj

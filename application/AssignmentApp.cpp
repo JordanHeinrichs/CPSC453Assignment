@@ -6,6 +6,7 @@
 #include "application/AssignmentApp.h"
 #include "businessLogic/game.h"
 #include "businessLogic/GameTickerService.h"
+#include "infrastructure/QtTimer.h"
 #include "view/Renderer.h"
 #include "view/WindowUi.h"
 #include "view/WindowView.h"
@@ -15,7 +16,9 @@ AssignmentApp::AssignmentApp(int argc, char *argv[])
 , renderer_(new Renderer())
 , windowUi_(new WindowUi(renderer_.data()))
 , game_(new Game(1,1)) // TODO
-, gameTickerService_(new GameTickerService(*game_))
+, gameTimer1_(new QtTimer())
+, gameTimer2_(new QtTimer())
+, gameTickerService_(new GameTickerService(*game_, *gameTimer1_, *gameTimer2_))
 , windowView_(new WindowView(*game_, *windowUi_, *renderer_, *gameTickerService_))
 {
 }

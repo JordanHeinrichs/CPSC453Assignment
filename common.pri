@@ -2,7 +2,7 @@ TEMPLATE = lib
 INCLUDEPATH += ..
 QT+=widgets
 
-CONFIG += staticlib release
+CONFIG += staticlib
 
 QMAKE_CXXFLAGS += -Werror
 

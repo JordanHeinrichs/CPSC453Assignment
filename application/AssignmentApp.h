@@ -6,8 +6,10 @@
 
 #include <QApplication>
 #include <QScopedPointer>
+
 class Game;
 class GameTickerService;
+class QtTimer;
 class Renderer;
 class WindowUi;
 class WindowView;
@@ -23,6 +25,8 @@ private:
     QScopedPointer<Renderer> renderer_;
     QScopedPointer<WindowUi> windowUi_;
     QScopedPointer<Game> game_;
+    QScopedPointer<QtTimer> gameTimer1_;
+    QScopedPointer<QtTimer> gameTimer2_;
     QScopedPointer<GameTickerService> gameTickerService_;
     QScopedPointer<WindowView> windowView_;
 };

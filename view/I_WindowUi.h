@@ -19,6 +19,7 @@ signals:
     void faceViewModeRequested();
     void multicolouredViewModeRequested();
     void pauseGameRequested();
+    void unpauseGameRequested();
     void speedUpGameRequested();
     void slowDownGameRequested();
     void autoIncreaseGameSpeedRequested();
