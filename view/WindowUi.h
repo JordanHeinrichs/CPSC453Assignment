@@ -14,9 +14,10 @@ public:
     explicit WindowUi(QWidget* mainWidget);
     virtual ~WindowUi();
 
+    QAction& pauseAction() const;
+
 private slots:
     void setDrawMode(QAction* action);
-    void pauseActionPressed();
 
 protected:
     bool eventFilter(QObject* object, QEvent* event);
@@ -29,7 +30,6 @@ private:
 
 private:
     QAction* pauseAction_;
-    QAction* unpauseAction_;
 
     QAction* wireframeModeAction_;
     QAction* frameModeAction_;

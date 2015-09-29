@@ -7,6 +7,8 @@
 
 #include "WindowUi.h"
 
+#include <QDebug>
+
 namespace
 {
     const QString PAUSE_TEXT = "&Pause";
@@ -31,6 +33,11 @@ WindowUi::~WindowUi()
 {
 }
 
+QAction& WindowUi::pauseAction() const
+{
+    return *pauseAction_;
+}
+
 void WindowUi::setDrawMode(QAction* action)
 {
     if (action == wireframeModeAction_)
@@ -44,20 +51,6 @@ void WindowUi::setDrawMode(QAction* action)
     else
     {
         emit multicolouredViewModeRequested();
-    }
-}
-
-void WindowUi::pauseActionPressed()
-{
-    if (pauseAction_->text() == PAUSE_TEXT)
-    {
-        pauseAction_->setText("un&pause");
-        emit pauseGameRequested();
-    }
-    else
-    {
-        pauseAction_->setText(PAUSE_TEXT);
-        emit unpauseGameRequested();
     }
 }
 
@@ -143,10 +136,9 @@ void WindowUi::createDrawMenu()
 
 void WindowUi::createGameMenu()
 {
-    QAction* pauseAction_ = new QAction(PAUSE_TEXT, this);
+    pauseAction_ = new QAction(PAUSE_TEXT, this);
     pauseAction_->setShortcut(QKeySequence(Qt::Key_P));
     pauseAction_->setStatusTip("Pause the game.");
-    connect(pauseAction_, SIGNAL(triggered()), this, SLOT(pauseActionPressed()));
 
     QAction* speedUpAction = new QAction("Speed up", this);
     speedUpAction->setShortcut(QKeySequence(Qt::Key_PageUp));

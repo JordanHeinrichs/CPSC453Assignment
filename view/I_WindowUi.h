@@ -12,14 +12,14 @@ class I_WindowUi : public QMainWindow
 public:
     virtual ~I_WindowUi() {}
 
+    virtual QAction& pauseAction() const = 0;
+
 signals:
     void newGameRequested();
     void resetRequested();
     void wireframeViewModeRequested();
     void faceViewModeRequested();
     void multicolouredViewModeRequested();
-    void pauseGameRequested();
-    void unpauseGameRequested();
     void speedUpGameRequested();
     void slowDownGameRequested();
     void autoIncreaseGameSpeedRequested();

@@ -12,6 +12,8 @@ public:
     GameTickerService(I_Game& game, I_Timer& tickTimer, I_Timer& autoIncreaseTimer);
     virtual ~GameTickerService();
 
+    bool isGameActive() const;
+
 public slots:
     void startGame();
     void pauseGame();

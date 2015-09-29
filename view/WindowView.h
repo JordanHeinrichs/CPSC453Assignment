@@ -21,6 +21,9 @@ private slots:
     void setViewModeFace();
     void setViewModeMulticoloured();
 
+    void handlePauseGameTriggered();
+    void handleGameActiveStateChanged(bool isGameActive);
+
 private:
     void setupKeyboardControls();
     void setupGameOptions();

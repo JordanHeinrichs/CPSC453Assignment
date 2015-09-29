@@ -1,3 +1,5 @@
+#include <QAction>
+
 #include "businessLogic/I_Game.h"
 #include "businessLogic/I_GameTickerService.h"
 #include "view/I_Renderer.h"
@@ -43,15 +45,16 @@ void WindowView::setupGameOptions()
 void WindowView::setupGameTickerOptions()
 {
     connect(&windowUi_, SIGNAL(newGameRequested()), &gameTickerService_, SLOT(startGame()));
-    connect(&windowUi_, SIGNAL(pauseGameRequested()), &gameTickerService_, SLOT(pauseGame()));
-    connect(&windowUi_, SIGNAL(unpauseGameRequested()), &gameTickerService_, SLOT(unpauseGame()));
+    connect(&windowUi_.pauseAction(), SIGNAL(triggered()), this, SLOT(handlePauseGameTriggered()));
     connect(&windowUi_, SIGNAL(speedUpGameRequested()), &gameTickerService_, SLOT(increaseRate()));
     connect(&windowUi_, SIGNAL(slowDownGameRequested()), &gameTickerService_, SLOT(decreaseRate()));
     connect(&windowUi_, SIGNAL(autoIncreaseGameSpeedRequested()), &gameTickerService_, SLOT(autoIncreaseRate()));
+    connect(&gameTickerService_, SIGNAL(gameActiveStateChanged(bool)), this, SLOT(handleGameActiveStateChanged(bool)));
 }
 
 void WindowView::setupGameRedrawing()
 {
+
     // TODO figure out best way to pass in game state. Learn how the drawing works.
     // connect(&game_, SIGNAL(stateChanged(const GameState&)), renderer_, SLOT(redrawGame(const GameState&)));
 }
@@ -69,4 +72,28 @@ void WindowView::setViewModeFace()
 void WindowView::setViewModeMulticoloured()
 {
     renderer_.setViewMode(I_Renderer::Multicoloured);
+}
+
+void WindowView::handlePauseGameTriggered()
+{
+    if (gameTickerService_.isGameActive())
+    {
+        gameTickerService_.pauseGame();
+    }
+    else
+    {
+        gameTickerService_.unpauseGame();
+    }
+}
+
+void WindowView::handleGameActiveStateChanged(bool isGameActive)
+{
+    if (isGameActive)
+    {
+        windowUi_.pauseAction().setText("&Pause");
+    }
+    else
+    {
+        windowUi_.pauseAction().setText("Un&pause");
+    }
 }

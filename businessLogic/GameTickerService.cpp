@@ -3,6 +3,8 @@
 #include "infrastructure/ConnectionHelpers.h"
 #include "infrastructure/I_Timer.h"
 
+#include <QDebug>
+
 namespace
 {
     const int INITIAL_TICK_INTERVAL = 1000;
@@ -29,21 +31,29 @@ GameTickerService::~GameTickerService()
 {
 }
 
+bool GameTickerService::isGameActive() const
+{
+    return tickTimer_.isActive();
+}
+
 void GameTickerService::startGame()
 {
     tickTimer_.start();
     game_.reset();
+    emit gameActiveStateChanged(true);
 }
 
 void GameTickerService::pauseGame()
 {
     tickTimer_.stop();
     autoIncreaseTimer_.stop();
+    emit gameActiveStateChanged(false);
 }
 
 void GameTickerService::unpauseGame()
 {
     tickTimer_.start();
+    emit gameActiveStateChanged(true);
     if (isAutoIncreaseModeActive_)
     {
         autoIncreaseTimer_.start();
@@ -84,6 +94,7 @@ void GameTickerService::stopGame()
 {
     tickTimer_.stop();
     stopAutoIncreasing();
+    emit gameActiveStateChanged(false);
 }
 
 void GameTickerService::setupTimers()

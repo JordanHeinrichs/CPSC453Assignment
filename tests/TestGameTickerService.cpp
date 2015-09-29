@@ -1,3 +1,4 @@
+#include <QSignalSpy>
 #include "TestGameTickerService.h"
 
 namespace
@@ -118,4 +119,51 @@ TEST_F(TestGameTickerService, willNotIncreaseRateAboveMaximum)
     EXPECT_CALL(tickTimer_, setInterval(MAXIMUM_TICK_INTERVAL));
 
     patient_.increaseRate();
+}
+
+TEST_F(TestGameTickerService, willIsGameActiveReturnCorrectValue)
+{
+    EXPECT_CALL(tickTimer_, isActive()).WillOnce(Return(true));
+    EXPECT_EQ(patient_.isGameActive(), true);
+}
+
+TEST_F(TestGameTickerService, willEmitGameActiveStateChangedOnStarting)
+{
+    QSignalSpy spy(&patient_, SIGNAL(gameActiveStateChanged(bool)));
+
+    patient_.startGame();
+
+    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(spy.takeFirst().at(0).toBool(), true);
+}
+
+TEST_F(TestGameTickerService, willEmitGameActiveStateChangedOnPausing)
+{
+    QSignalSpy spy(&patient_, SIGNAL(gameActiveStateChanged(bool)));
+
+    patient_.pauseGame();
+
+    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(spy.takeFirst().at(0).toBool(), false);
+}
+
+TEST_F(TestGameTickerService, willEmitGameActiveStateChangedOnUnpausing)
+{
+    QSignalSpy spy(&patient_, SIGNAL(gameActiveStateChanged(bool)));
+
+    patient_.unpauseGame();
+
+    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(spy.takeFirst().at(0).toBool(), true);
+}
+
+TEST_F(TestGameTickerService, willEmitGameActiveStateChangedOnGameOver)
+{
+    ON_CALL(game_, tick()).WillByDefault(Return(GAME_OVER));
+    QSignalSpy spy(&patient_, SIGNAL(gameActiveStateChanged(bool)));
+
+    tickTimer_.emitTimeout();
+
+    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(spy.takeFirst().at(0).toBool(), false);
 }
