@@ -46,21 +46,23 @@ protected:
 private:
     void setupBorderTriangleDrawing();
     void generateBorderTriangles();
+    void drawBorderTriangles();
     void setupCube();
+    void drawCube();
 
 private:
     // member variables for shader manipulation
     GLuint programID_;
-    GLuint posAttr_;
-    GLuint colAttr_;
-    GLuint norAttr_;
+    GLuint positionAttribute_;
+    GLuint colourAttribute_;
+    GLuint normalAttribute_;
     GLuint MMatrixUniform_; // model matrix
     GLuint VMatrixUniform_; // view matrix
     GLuint PMatrixUniform_; // projection matrix
 
     QOpenGLShaderProgram *program_;
 
-
+    GLuint boxVertexBufferObject_;
     GLuint boxVao_;
     GLuint triangleVertexBufferObject_;
     GLuint triangleVao_;
