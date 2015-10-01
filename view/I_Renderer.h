@@ -17,6 +17,4 @@ public:
     };
 
     virtual void setViewMode(ViewMode viewMode) = 0;
-    // some sort of way to pass the blocks in
-    virtual void renderGameBlocks() = 0;
 };

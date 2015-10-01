@@ -51,8 +51,9 @@ namespace
         0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0};
 }
 
-Renderer::Renderer(QWidget *parent)
+Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
+, game_(game)
 {
 }
 
@@ -63,11 +64,11 @@ Renderer::~Renderer()
 void Renderer::initializeGL()
 {
     initializeOpenGLFunctions();
+    glEnable(GL_DEPTH_TEST);
 
     // sets the background clour
     glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
 
-    // links to and compiles the shaders, used for drawing simple objects
     program_ = new QOpenGLShaderProgram(this);
     program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "per-fragment-phong.vs.glsl");
     program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "per-fragment-phong.fs.glsl");
@@ -89,8 +90,6 @@ void Renderer::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(programID_);
-
-    glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
     // Modify the current projection matrix so that we move the
@@ -103,19 +102,17 @@ void Renderer::paintGL()
     // Not implemented: set up lighting (if necessary)
     // Not implemented: scale and rotate the scene
 
-    QMatrix4x4 modelMatrix;
 
     // You'll be drawing unit cubes, so the game will have width
     // 10 and height 24 (game = 20, stripe = 4).  Let's translate
     // the game so that we can draw it starting at (0,0) but have
     // it appear centered in the window.
 
-
-
-    drawBorderTriangles();
-    drawCube();
-
+    QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
+    drawBorderTriangles();
+    drawGamePieces();
+
     glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
 
     program_->release();
@@ -241,10 +238,52 @@ void Renderer::setupCube()
         reinterpret_cast<const void*>(vertexBufferSize + coloursBufferSize));
 }
 
-void Renderer::drawCube()
+void Renderer::drawCube(int row, int coloumn, QColor color)
 {
+    Q_UNUSED(color);
+    QMatrix4x4 modelMatrix;
+    modelMatrix.translate(-5.0f, -12.0f, 0.0f);
+    modelMatrix.translate(row, coloumn, 0.0f);
+    glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
+
     glBindVertexArray(boxVao_);
     glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
+}
+
+void Renderer::drawGamePieces()
+{
+    for (int row = 0; row < game_.getWidth(); ++row)
+    {
+        for (int column = 0; column < game_.getHeight() + 4; ++column)
+        {
+            const int pieceState = game_.get(row, column);
+            if (pieceState == -1)
+            {
+                drawCube(row, column, colorForPieceId(pieceState));
+            }
+        }
+    }
+}
+
+QColor Renderer::colorForPieceId(int pieceId) const
+{
+    switch(pieceId)
+    {
+    case 0:
+        return Qt::red;
+    case 1:
+        return Qt::green;
+    case 2:
+        return Qt::blue;
+    case 3:
+        return Qt::cyan;
+    case 4:
+        return Qt::magenta;
+    case 5:
+        return Qt::yellow;
+    default:
+        return Qt::gray;
+    }
 }
 
 void Renderer::mousePressEvent(QMouseEvent * event)

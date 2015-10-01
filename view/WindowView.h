@@ -28,7 +28,6 @@ private:
     void setupKeyboardControls();
     void setupGameOptions();
     void setupGameTickerOptions();
-    void setupGameRedrawing();
 
 private:
     I_Game& game_;

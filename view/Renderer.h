@@ -17,17 +17,17 @@
 #include <QVector>
 
 #include "view/I_Renderer.h"
+#include "businessLogic/I_Game.h"
 
 class Renderer : public QOpenGLWidget, protected QOpenGLFunctions_4_2_Core, public I_Renderer
 {
     Q_OBJECT
 public:
-    Renderer(QWidget *parent = 0);
+    Renderer(const I_Game& game, QWidget *parent = 0);
     virtual ~Renderer();
 
     // TODO
     void setViewMode(ViewMode /*viewMode*/) {}
-    void renderGameBlocks() {}
 
 protected:
     // Called when OpenGL is first initialized
@@ -48,9 +48,13 @@ private:
     void generateBorderTriangles();
     void drawBorderTriangles();
     void setupCube();
-    void drawCube();
+    void drawCube(int row, int coloumn, QColor color);
+    void drawGamePieces();
+    QColor colorForPieceId(int pieceId) const;
 
 private:
+    const I_Game& game_;
+
     // member variables for shader manipulation
     GLuint programID_;
     GLuint positionAttribute_;

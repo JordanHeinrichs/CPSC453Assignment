@@ -19,12 +19,12 @@ namespace
 
 AssignmentApp::AssignmentApp(int argc, char *argv[])
 : QApplication(argc, argv)
-, renderer_(new Renderer())
-, windowUi_(new WindowUi(renderer_.data()))
 , game_(new Game(WIDTH_OF_GAME_AREA, HEIGHT_OF_GAME_AREA))
 , gameTimer1_(new QtTimer())
 , gameTimer2_(new QtTimer())
 , gameTickerService_(new GameTickerService(*game_, *gameTimer1_, *gameTimer2_))
+, renderer_(new Renderer(*game_))
+, windowUi_(new WindowUi(renderer_.data()))
 , windowView_(new WindowView(*game_, *windowUi_, *renderer_, *gameTickerService_))
 {
 }

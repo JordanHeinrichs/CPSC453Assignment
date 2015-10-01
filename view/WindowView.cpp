@@ -18,7 +18,6 @@ WindowView::WindowView(I_Game& game,
     setupKeyboardControls();
     setupGameOptions();
     setupGameTickerOptions();
-    setupGameRedrawing();
 }
 
 WindowView::~WindowView()
@@ -50,13 +49,6 @@ void WindowView::setupGameTickerOptions()
     connect(&windowUi_, SIGNAL(slowDownGameRequested()), &gameTickerService_, SLOT(decreaseRate()));
     connect(&windowUi_, SIGNAL(autoIncreaseGameSpeedRequested()), &gameTickerService_, SLOT(autoIncreaseRate()));
     connect(&gameTickerService_, SIGNAL(gameActiveStateChanged(bool)), this, SLOT(handleGameActiveStateChanged(bool)));
-}
-
-void WindowView::setupGameRedrawing()
-{
-
-    // TODO figure out best way to pass in game state. Learn how the drawing works.
-    // connect(&game_, SIGNAL(stateChanged(const GameState&)), renderer_, SLOT(redrawGame(const GameState&)));
 }
 
 void WindowView::setViewModeWireframe()
