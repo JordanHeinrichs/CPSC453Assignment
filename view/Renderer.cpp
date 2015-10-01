@@ -1,4 +1,4 @@
-#include "view/Renderer.h"
+    #include "view/Renderer.h"
 #include <QTextStream>
 #include <QOpenGLBuffer>
 #include <cmath>
@@ -8,7 +8,7 @@ namespace
     const int WIDTH_OF_GAME_SCREEN = 10;
     const int HEIGHT_OF_GAME_SCREEN = 24;
 
-    const QVector<GLfloat> CUBE_VERICES = {
+    const QVector<GLfloat> CUBE_VERTICES = {
         0.0, 0.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 0.0,
         0.0, 1.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 1.0,
         0.0, 0.0, 0.0,   0.0, 1.0, 0.0,   1.0, 1.0, 0.0,
@@ -21,7 +21,6 @@ namespace
         0.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 0.0,
         1.0, 0.0, 0.0,   1.0, 1.0, 0.0,   1.0, 1.0, 1.0,
         1.0, 0.0, 0.0,   1.0, 1.0, 1.0,   1.0, 0.0, 1.0};
-
 
     const QVector<GLfloat> CUBE_NORMALS = {
         -1.0, 0.0, 0.0,  -1.0, 0.0, 0.0,  -1.0, 0.0, 0.0,
@@ -61,11 +60,9 @@ Renderer::~Renderer()
 {
 }
 
-// called once by Qt GUI system, to allow initialization for OpenGL requirements
 void Renderer::initializeGL()
 {
-    // Qt support for inline GL function calls
-	initializeOpenGLFunctions();
+    initializeOpenGLFunctions();
 
     // sets the background clour
     glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
@@ -78,10 +75,13 @@ void Renderer::initializeGL()
     positionAttribute_ = program_->attributeLocation("position_attr");
     colourAttribute_ = program_->attributeLocation("colour_attr");
     normalAttribute_ = program_->attributeLocation("normal_attr");
-    PMatrixUniform_ = program_->uniformLocation("proj_matrix");
-    VMatrixUniform_ = program_->uniformLocation("viewMatrix");
-    MMatrixUniform_ = program_->uniformLocation("model_matrix");
+    projectionMatrixUniform_ = program_->uniformLocation("proj_matrix");
+    viewMatrixUniform_ = program_->uniformLocation("viewMatrix");
+    projectionMatrixUniform_ = program_->uniformLocation("modelMatrix");
     programID_ = program_->programId();
+
+    setupBorderTriangleDrawing();
+    setupCube();
 }
 
 void Renderer::paintGL()
@@ -98,22 +98,25 @@ void Renderer::paintGL()
     // origin, and we need to back up to see it.
     QMatrix4x4 viewMatrix;
     viewMatrix.translate(0.0f, 0.0f, -40.0f);
-    glUniformMatrix4fv(VMatrixUniform_, 1, false, viewMatrix.data());
+    glUniformMatrix4fv(viewMatrixUniform_, 1, false, viewMatrix.data());
 
     // Not implemented: set up lighting (if necessary)
     // Not implemented: scale and rotate the scene
 
-    QMatrix4x4 model_matrix;
+    QMatrix4x4 modelMatrix;
 
     // You'll be drawing unit cubes, so the game will have width
     // 10 and height 24 (game = 20, stripe = 4).  Let's translate
     // the game so that we can draw it starting at (0,0) but have
     // it appear centered in the window.
 
-    model_matrix.translate(-5.0f, -12.0f, 0.0f);
-    glUniformMatrix4fv(MMatrixUniform_, 1, false, model_matrix.data());
+
 
     drawBorderTriangles();
+    drawCube();
+
+    modelMatrix.translate(-5.0f, -12.0f, 0.0f);
+    glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
 
     program_->release();
 }
@@ -132,7 +135,7 @@ void Renderer::resizeGL(int w, int h)
     QMatrix4x4 projectionMatrix;
     projectionMatrix.perspective(40.0f, (GLfloat)width() / (GLfloat)height(),
                                   0.1f, 1000.0f);
-    glUniformMatrix4fv(PMatrixUniform_, 1, false, projectionMatrix.data());
+    glUniformMatrix4fv(projectionMatrixUniform_, 1, false, projectionMatrix.data());
 
     glViewport(0, 0, width(), height());
 }
@@ -214,7 +217,7 @@ void Renderer::setupCube()
     glBindVertexArray(boxVao_);
     glBindBuffer(GL_ARRAY_BUFFER, boxVertexBufferObject_);
 
-    const int vertexBufferSize = CUBE_VERICES.size() * sizeof(GLfloat);
+    const int vertexBufferSize = CUBE_VERTICES.size() * sizeof(GLfloat);
     const int coloursBufferSize = CUBE_COLOUR_GREEN.size() * sizeof(GLfloat);
     const int normalsBufferSize = CUBE_NORMALS.size() * sizeof(GLfloat);
     const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
@@ -222,7 +225,7 @@ void Renderer::setupCube()
     glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
         NULL, GL_STATIC_DRAW);
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERICES.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERTICES.data());
     glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, CUBE_COLOUR_GREEN.data());
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize + coloursBufferSize, CUBE_NORMALS.data());
 
@@ -241,7 +244,7 @@ void Renderer::setupCube()
 void Renderer::drawCube()
 {
     glBindVertexArray(boxVao_);
-    glDrawArrays(GL_TRIANGLES, 0, CUBE_VERICES.size() / 3);
+    glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
 }
 
 void Renderer::mousePressEvent(QMouseEvent * event)

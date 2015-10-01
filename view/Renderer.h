@@ -56,9 +56,9 @@ private:
     GLuint positionAttribute_;
     GLuint colourAttribute_;
     GLuint normalAttribute_;
-    GLuint MMatrixUniform_; // model matrix
-    GLuint VMatrixUniform_; // view matrix
-    GLuint PMatrixUniform_; // projection matrix
+    GLuint modelMatrixUniform_;
+    GLuint viewMatrixUniform_;
+    GLuint projectionMatrixUniform_;
 
     QOpenGLShaderProgram *program_;
 
