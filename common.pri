@@ -2,7 +2,7 @@ TEMPLATE = lib
 INCLUDEPATH += ..
 QT+=widgets
 
-CONFIG += staticlib c++11
+CONFIG += staticlib c++11 debug
 
 QMAKE_CXXFLAGS += -Werror
 

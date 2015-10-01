@@ -26,7 +26,7 @@ private:
     QScopedPointer<QtTimer> gameTimer1_;
     QScopedPointer<QtTimer> gameTimer2_;
     QScopedPointer<GameTickerService> gameTickerService_;
-    QScopedPointer<Renderer> renderer_;
+    Renderer* renderer_;
     QScopedPointer<WindowUi> windowUi_;
     QScopedPointer<WindowView> windowView_;
 };

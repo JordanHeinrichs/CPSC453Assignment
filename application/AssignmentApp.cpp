@@ -24,7 +24,7 @@ AssignmentApp::AssignmentApp(int argc, char *argv[])
 , gameTimer2_(new QtTimer())
 , gameTickerService_(new GameTickerService(*game_, *gameTimer1_, *gameTimer2_))
 , renderer_(new Renderer(*game_))
-, windowUi_(new WindowUi(renderer_.data()))
+, windowUi_(new WindowUi(dynamic_cast<QWidget*>(renderer_)))
 , windowView_(new WindowView(*game_, *windowUi_, *renderer_, *gameTickerService_))
 {
 }

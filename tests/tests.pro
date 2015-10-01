@@ -21,3 +21,6 @@ OBJECTS_DIR = $$(BUILD_DIR)/.tests/.obj
 MOC_DIR = $$(BUILD_DIR)/.tests/.moc
 RCC_DIR = $$(BUILD_DIR)/.tests/.rcc
 UI_DIR = $$(BUILD_DIR)/.tests/.ui
+
+target.path = $$(BUILD_DIR)/.tests/testsDir
+INSTALLS += target

@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMenuBar>
+#include <QVBoxLayout>
 
 #include "WindowUi.h"
 
@@ -14,7 +15,7 @@ namespace
     const QString PAUSE_TEXT = "&Pause";
 }
 
-WindowUi::WindowUi(QWidget* mainWidget)
+WindowUi::WindowUi(QWidget* renderer)
 {
     createFileMenu();
     createDrawMenu();
@@ -22,7 +23,15 @@ WindowUi::WindowUi(QWidget* mainWidget)
 
     setWindowTitle("CPSC453: Tetromino Apocalypse");
 
-    mainWidget->setMinimumSize(300, 600);
+    // Setup the application's widget collection
+    QVBoxLayout * layout = new QVBoxLayout();
+
+    // Add renderer
+    layout->addWidget(renderer);
+    renderer->setMinimumSize(300, 600);
+
+    QWidget * mainWidget = new QWidget();
+    mainWidget->setLayout(layout);
     setCentralWidget(mainWidget);
 
     setupKeyboardHandling();

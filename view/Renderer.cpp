@@ -7,6 +7,7 @@ namespace
 {
     const int WIDTH_OF_GAME_SCREEN = 10;
     const int HEIGHT_OF_GAME_SCREEN = 24;
+    const int REFRESH_PERIOD = 33;
 
     const QVector<GLfloat> CUBE_VERTICES = {
         0.0, 0.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 0.0,
@@ -54,20 +55,27 @@ namespace
 Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
 , game_(game)
+, refreshDrawer_()
 {
+    refreshDrawer_.setInterval(REFRESH_PERIOD);
+    refreshDrawer_.start();
+    connect(&refreshDrawer_, SIGNAL(timeout()), this, SLOT(paintGL()));
 }
 
 Renderer::~Renderer()
 {
 }
 
+#include <stdio.h>
 void Renderer::initializeGL()
 {
+    printf("initializeGL\n");
+
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
 
     // sets the background clour
-    glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.5f, 0.7f, 1.0f);
 
     program_ = new QOpenGLShaderProgram(this);
     program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "per-fragment-phong.vs.glsl");
@@ -81,8 +89,8 @@ void Renderer::initializeGL()
     projectionMatrixUniform_ = program_->uniformLocation("modelMatrix");
     programID_ = program_->programId();
 
-    setupBorderTriangleDrawing();
-    setupCube();
+    // setupBorderTriangleDrawing();
+    // setupCube();
 }
 
 void Renderer::paintGL()
@@ -90,7 +98,7 @@ void Renderer::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(programID_);
-    glDepthFunc(GL_LESS);
+    // glDepthFunc(GL_LESS);
 
     // Modify the current projection matrix so that we move the
     // camera away from the origin.  We'll draw the game at the
@@ -110,10 +118,65 @@ void Renderer::paintGL()
 
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
-    drawBorderTriangles();
-    drawGamePieces();
-
     glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
+
+    // drawBorderTriangles();
+    // drawGamePieces();
+
+    std::vector<GLfloat> triVertices;
+    std::vector<GLfloat> triColours;
+    std::vector<GLfloat> triNormals;
+
+    float vectList [] = {
+        0.0, 0.0, 0.0,  // bottom left triangle
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+
+        9.0, 0.0, 0.0,  // bottom right triangle
+        10.0, 0.0, 0.0,
+        10.0, 1.0, 0.0,
+
+        0.0, 19.0, 0.0, // top left triangle
+        1.0, 20.0, 0.0,
+        0.0, 20.0, 0.0,
+
+        10.0, 19.0, 0.0,    // top right triangle
+        10.0, 20.0, 0.0,
+        9.0, 20.0, 0.0 };
+    triVertices.insert(triVertices.end(), vectList, vectList + 3*4*3); // 36 items in array
+
+    // shader supports per-vertex colour; add colour for each vertex add colours to colour list - use current colour
+    QColor borderColour = Qt::red;
+    float colourList [] = { (float)borderColour.redF(), (float)borderColour.greenF(), (float)borderColour.blueF() };
+    float normalList [] = { 0.0f, 0.0f, 1.0f }; // facing viewer
+    for (int v = 0; v < 4 * 3; v++)
+    {
+        triColours.insert(triColours.end(), colourList, colourList + 3); // 3 coordinates per vertex
+        triNormals.insert(triNormals.end(), normalList, normalList + 3); // 3 coordinates per vertex
+    }
+
+    printf("Drawing triangles\n");
+
+    // draw border
+    if (triVertices.size() > 0)
+    {
+        // pass in the list of vertices and their associated colours
+        // 3 coordinates per vertex, or per colour
+        glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triVertices[0]);
+        glVertexAttribPointer(colourAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triColours[0]);
+        glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triNormals[0]);
+
+        glEnableVertexAttribArray(positionAttribute_);
+        glEnableVertexAttribArray(colourAttribute_);
+        glEnableVertexAttribArray(normalAttribute_);
+
+        // draw triangles
+        glDrawArrays(GL_TRIANGLES, 0, triVertices.size()/3); // 3 coordinates per vertex
+
+        glDisableVertexAttribArray(normalAttribute_);
+        glDisableVertexAttribArray(colourAttribute_);
+        glDisableVertexAttribArray(positionAttribute_);
+    }
 
     program_->release();
 }

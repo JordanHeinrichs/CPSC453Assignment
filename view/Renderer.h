@@ -6,15 +6,16 @@
 * Renderer - OpenGL widget for drawing scene
 */
 
-#include <QWidget>
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_2_Core>
-#include <QMatrix4x4>
 #include <QKeyEvent>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLShader>
+#include <QMatrix4x4>
+#include <QOpenGLWidget>
 #include <QMouseEvent>
+#include <QOpenGLFunctions_4_2_Core>
+#include <QOpenGLShader>
+#include <QOpenGLShaderProgram>
+#include <QTimer>
 #include <QVector>
+#include <QWidget>
 
 #include "view/I_Renderer.h"
 #include "businessLogic/I_Game.h"
@@ -36,12 +37,13 @@ protected:
     // Called when the window is resized
     void resizeGL(int w, int h);
 
-    // Called when the window needs to be redrawn
-    void paintGL();
-
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
+
+protected slots:
+    // Called when the window needs to be redrawn
+    void paintGL();
 
 private:
     void setupBorderTriangleDrawing();
@@ -54,6 +56,7 @@ private:
 
 private:
     const I_Game& game_;
+    QTimer refreshDrawer_;
 
     // member variables for shader manipulation
     GLuint programID_;

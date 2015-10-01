@@ -11,7 +11,7 @@ class WindowUi : public I_WindowUi
 {
     Q_OBJECT
 public:
-    explicit WindowUi(QWidget* mainWidget);
+    explicit WindowUi(QWidget* renderer);
     virtual ~WindowUi();
 
     QAction& pauseAction() const;
