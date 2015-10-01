@@ -3,8 +3,14 @@
 #include <QOpenGLBuffer>
 #include <cmath>
 
+namespace
+{
+    const int WIDTH_OF_GAME_SCREEN = 10;
+    const int HEIGHT_OF_GAME_SCREEN = 24;
+}
+
 Renderer::Renderer(QWidget *parent)
-    : QOpenGLWidget(parent)
+: QOpenGLWidget(parent)
 {
 }
 
@@ -64,31 +70,16 @@ void Renderer::paintGL()
     model_matrix.translate(-5.0f, -12.0f, 0.0f);
     glUniformMatrix4fv(MMatrixUniform_, 1, false, model_matrix.data());
 
-    // Not implemented: actually draw the current game state.
-    // Here's some test code that draws red triangles at the
-    // corners of the game board.
-    generateBorderTriangles();
+    glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject_);
+    glEnableVertexAttribArray(posAttr_);
+    glEnableVertexAttribArray(colAttr_);
+    glEnableVertexAttribArray(norAttr_);
 
-    // draw border
-    if (triVertices.size() > 0)
-    {
-        // pass in the list of vertices and their associated colours
-        // 3 coordinates per vertex, or per colour
-        glVertexAttribPointer(posAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triVertices[0]);
-        glVertexAttribPointer(colAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triColours[0]);
-        glVertexAttribPointer(norAttr_, 3, GL_FLOAT, GL_FALSE, 0, &triNormals[0]);
+    glDrawArrays(GL_TRIANGLES, 0, triangleVertices_.size() / 3);
 
-        glEnableVertexAttribArray(posAttr_);
-        glEnableVertexAttribArray(colAttr_);
-        glEnableVertexAttribArray(norAttr_);
-
-        // draw triangles
-        glDrawArrays(GL_TRIANGLES, 0, triVertices.size()/3); // 3 coordinates per vertex
-
-        glDisableVertexAttribArray(norAttr_);
-        glDisableVertexAttribArray(colAttr_);
-        glDisableVertexAttribArray(posAttr_);
-    }
+    glDisableVertexAttribArray(posAttr_);
+    glDisableVertexAttribArray(colAttr_);
+    glDisableVertexAttribArray(norAttr_);
 
     // deactivate the program
     program_->release();
@@ -114,17 +105,47 @@ void Renderer::resizeGL(int w, int h)
 
 }
 
+void Renderer::setupBorderTriangleDrawing()
+{
+    generateBorderTriangles();
+
+    glGenBuffers(1, &triangleVertexBufferObject_);
+    glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject_);
+
+    const int vertexBufferSize = triangleVertices_.size() * sizeof(GLfloat);
+    const int coloursBufferSize = triangleColours_.size() * sizeof(GLfloat);
+    const int normalsBufferSize = triangleNormals_.size() * sizeof(GLfloat);
+    const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
+
+    glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
+        NULL, GL_STATIC_DRAW);
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, triangleVertices_.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, triangleColours_.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize + coloursBufferSize, triangleNormals_.data());
+
+    glEnableVertexAttribArray(posAttr_);
+    glEnableVertexAttribArray(colAttr_);
+    glEnableVertexAttribArray(norAttr_);
+
+    glVertexAttribPointer(posAttr_, 3, GL_FLOAT, 0, GL_FALSE,
+        reinterpret_cast<const void*>(triangleVertexBufferObject_));
+    glVertexAttribPointer(colAttr_, 3, GL_FLOAT, 0, GL_FALSE,
+        reinterpret_cast<const void*>(triangleVertexBufferObject_ + vertexBufferSize));
+    glVertexAttribPointer(norAttr_, 3, GL_FLOAT, 0, GL_FALSE,
+        reinterpret_cast<const void*>(triangleVertexBufferObject_ + vertexBufferSize + coloursBufferSize));
+
+    glDisableVertexAttribArray(posAttr_);
+    glDisableVertexAttribArray(colAttr_);
+    glDisableVertexAttribArray(norAttr_);
+}
+
 // computes the vertices and corresponding colours-per-vertex for a quadrilateral
 // drawn from (x1, y1) to (x2, y2)
 // Note: the magic numbers in the vector insert commands should be better documented
 void Renderer::generateBorderTriangles()
 {
-    // make sure array lists are clear to start with
-    triVertices.clear();
-    triColours.clear();
-
-    // add vertices to rectangle list
-    float vectList [] = {
+    triangleVertices_ = {
         0.0, 0.0, 0.0,  // bottom left triangle
         1.0, 0.0, 0.0,
         0.0, 1.0, 0.0,
@@ -137,37 +158,40 @@ void Renderer::generateBorderTriangles()
         1.0, 20.0, 0.0,
         0.0, 20.0, 0.0,
 
-        10.0, 19.0, 0.0,    // top right triangle
+        10.0, 19.0, 0.0, // top right triangle
         10.0, 20.0, 0.0,
-        9.0, 20.0, 0.0 };
-    triVertices.insert(triVertices.end(), vectList, vectList + 3*4*3); // 36 items in array
+        9.0, 20.0, 0.0};
 
-    // shader supports per-vertex colour; add colour for each vertex add colours to colour list - use current colour
+    triangleColours_.clear();
+    triangleNormals_.clear();
     QColor borderColour = Qt::red;
-    float colourList[] = { (float)borderColour.redF(), (float)borderColour.greenF(), (float)borderColour.blueF() };
-    float normalList[] = { 0.0f, 0.0f, 1.0f }; // facing viewer
-    for (int v = 0; v < 4 * 3; v++)
+    for (int vertex = 0; vertex < 4 * 3; vertex++)
     {
-        triColours.insert(triColours.end(), colourList, colourList + 3); // 3 coordinates per vertex
-        triNormals.insert(triNormals.end(), normalList, normalList + 3); // 3 coordinates per vertex
+        triangleColours_ << QVector<GLfloat>(
+            {static_cast<GLfloat>(borderColour.redF()),
+            static_cast<GLfloat>(borderColour.greenF()),
+            static_cast<GLfloat>(borderColour.blueF())});
+        triangleNormals_ << QVector<GLfloat>({ 0.0f, 0.0f, 1.0f });
     }
 }
 
-// override mouse press event
+void Renderer::setupCube()
+{
+
+}
+
 void Renderer::mousePressEvent(QMouseEvent * event)
 {
     QTextStream cout(stdout);
     cout << "Stub: Button " << event->button() << " pressed.\n";
 }
 
-// override mouse release event
 void Renderer::mouseReleaseEvent(QMouseEvent * event)
 {
     QTextStream cout(stdout);
     cout << "Stub: Button " << event->button() << " pressed.\n";
 }
 
-// override mouse move event
 void Renderer::mouseMoveEvent(QMouseEvent * event)
 {
     QTextStream cout(stdout);

@@ -13,15 +13,15 @@
 
 namespace
 {
-    const int WIDTH_OF_GAME_SCREEN = 10;
-    const int HEIGHT_OF_GAME_SCREEN = 24;
+    const int WIDTH_OF_GAME_AREA = 10;
+    const int HEIGHT_OF_GAME_AREA = 20;
 }
 
 AssignmentApp::AssignmentApp(int argc, char *argv[])
 : QApplication(argc, argv)
 , renderer_(new Renderer())
 , windowUi_(new WindowUi(renderer_.data()))
-, game_(new Game(WIDTH_OF_GAME_SCREEN, HEIGHT_OF_GAME_SCREEN))
+, game_(new Game(WIDTH_OF_GAME_AREA, HEIGHT_OF_GAME_AREA))
 , gameTimer1_(new QtTimer())
 , gameTimer2_(new QtTimer())
 , gameTickerService_(new GameTickerService(*game_, *gameTimer1_, *gameTimer2_))

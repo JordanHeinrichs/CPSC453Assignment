@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-config += ordered
+config += ordered c++11
 
 SUBDIRS  = \
     infrastructure \

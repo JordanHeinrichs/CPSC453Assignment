@@ -8,18 +8,17 @@
 
 #include <QWidget>
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_2_Core>
 #include <QMatrix4x4>
 #include <QKeyEvent>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QMouseEvent>
+#include <QVector>
 
 #include "view/I_Renderer.h"
 
-using namespace std;
-
-class Renderer : public QOpenGLWidget, protected QOpenGLFunctions, public I_Renderer
+class Renderer : public QOpenGLWidget, protected QOpenGLFunctions_4_2_Core, public I_Renderer
 {
     Q_OBJECT
 public:
@@ -45,6 +44,11 @@ protected:
     void mouseMoveEvent(QMouseEvent* event);
 
 private:
+    void setupBorderTriangleDrawing();
+    void generateBorderTriangles();
+    void setupCube();
+
+private:
     // member variables for shader manipulation
     GLuint programID_;
     GLuint posAttr_;
@@ -56,13 +60,15 @@ private:
 
     QOpenGLShaderProgram *program_;
 
-    // for storing triangle vertices and colours
-    vector<GLfloat> triVertices;
-    vector<GLfloat> triColours;
-    vector<GLfloat> triNormals;
+
+    GLuint boxVao_;
+    GLuint triangleVertexBufferObject_;
+    GLuint triangleVao_;
+
+    QVector<GLfloat> triangleVertices_;
+    QVector<GLfloat> triangleColours_;
+    QVector<GLfloat> triangleNormals_;
 
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
-
-    void generateBorderTriangles();
 };

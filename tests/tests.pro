@@ -1,8 +1,8 @@
 TEMPLATE = app
 QT+=widgets testlib
 
-HEADERS += TestRunner.h TestGameTickerService.h Mock*.h
-SOURCES += main.cpp TestRunner.cpp TestGameTickerService.cpp Mock*.cpp
+HEADERS += TestGameTickerService.h Mock*.h
+SOURCES += main.cpp TestGameTickerService.cpp Mock*.cpp
 
 QMAKE_CXXFLAGS += -Werror
 
@@ -14,7 +14,7 @@ POST_TARGETDEPS += \
     $$(BUILD_DIR)/.lib/infrastructure.a
 INCLUDEPATH += .. gtest/include
 
-CONFIG += testcase
+CONFIG += testcase c++11
 
 DESTDIR = $$(BUILD_DIR)/.tests
 OBJECTS_DIR = $$(BUILD_DIR)/.tests/.obj
