@@ -18,8 +18,8 @@ class AssignmentApp : public QApplication
 {
     Q_OBJECT
 public:
-    AssignmentApp(int argc, char *argv[]);
-    ~AssignmentApp();
+    AssignmentApp(int& argc, char** argv);
+    virtual ~AssignmentApp();
 
 private:
     QScopedPointer<Game> game_;

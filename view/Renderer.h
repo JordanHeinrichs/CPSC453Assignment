@@ -53,6 +53,7 @@ private:
     void drawCube(int row, int coloumn, QColor color);
     void drawGamePieces();
     QColor colorForPieceId(int pieceId) const;
+    void setupAndStartRefreshTimer();
 
 private:
     const I_Game& game_;

@@ -15,7 +15,8 @@ namespace
     const QString PAUSE_TEXT = "&Pause";
 }
 
-WindowUi::WindowUi(QWidget* renderer)
+WindowUi::WindowUi(QWidget* renderer, QWidget* parent)
+: QMainWindow(parent)
 {
     createFileMenu();
     createDrawMenu();
@@ -35,7 +36,6 @@ WindowUi::WindowUi(QWidget* renderer)
     setCentralWidget(mainWidget);
 
     setupKeyboardHandling();
-    show();
 }
 
 WindowUi::~WindowUi()

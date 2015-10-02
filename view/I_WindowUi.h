@@ -4,17 +4,16 @@
 * Assignment 1
 */
 
-#include <QMainWindow>
+class QAction;
 
-class I_WindowUi : public QMainWindow
+class I_WindowUi
 {
-    Q_OBJECT
 public:
     virtual ~I_WindowUi() {}
 
     virtual QAction& pauseAction() const = 0;
 
-signals:
+protected: // signals:
     void newGameRequested();
     void resetRequested();
     void wireframeViewModeRequested();

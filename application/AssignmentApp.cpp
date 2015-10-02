@@ -17,16 +17,17 @@ namespace
     const int HEIGHT_OF_GAME_AREA = 20;
 }
 
-AssignmentApp::AssignmentApp(int argc, char *argv[])
+AssignmentApp::AssignmentApp(int& argc, char** argv)
 : QApplication(argc, argv)
 , game_(new Game(WIDTH_OF_GAME_AREA, HEIGHT_OF_GAME_AREA))
 , gameTimer1_(new QtTimer())
 , gameTimer2_(new QtTimer())
 , gameTickerService_(new GameTickerService(*game_, *gameTimer1_, *gameTimer2_))
 , renderer_(new Renderer(*game_))
-, windowUi_(new WindowUi(dynamic_cast<QWidget*>(renderer_)))
+, windowUi_(new WindowUi(renderer_))
 , windowView_(new WindowView(*game_, *windowUi_, *renderer_, *gameTickerService_))
 {
+    windowUi_->show();
 }
 
 AssignmentApp::~AssignmentApp()

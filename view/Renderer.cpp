@@ -57,9 +57,6 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 , game_(game)
 , refreshDrawer_()
 {
-    refreshDrawer_.setInterval(REFRESH_PERIOD);
-    refreshDrawer_.start();
-    connect(&refreshDrawer_, SIGNAL(timeout()), this, SLOT(paintGL()));
 }
 
 Renderer::~Renderer()
@@ -91,6 +88,8 @@ void Renderer::initializeGL()
 
     // setupBorderTriangleDrawing();
     // setupCube();
+
+    setupAndStartRefreshTimer();
 }
 
 void Renderer::paintGL()
@@ -347,6 +346,13 @@ QColor Renderer::colorForPieceId(int pieceId) const
     default:
         return Qt::gray;
     }
+}
+
+void Renderer::setupAndStartRefreshTimer()
+{
+    refreshDrawer_.setInterval(REFRESH_PERIOD);
+    refreshDrawer_.start();
+    connect(&refreshDrawer_, SIGNAL(timeout()), this, SLOT(paintGL()));
 }
 
 void Renderer::mousePressEvent(QMouseEvent * event)

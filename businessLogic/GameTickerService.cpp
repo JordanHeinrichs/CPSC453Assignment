@@ -21,7 +21,7 @@ namespace
 GameTickerService::GameTickerService(I_Game& game, I_Timer& tickTimer, I_Timer& autoIncreaseTimer)
 : game_(game)
 , tickTimer_(tickTimer)
-, autoIncreaseTimer_( autoIncreaseTimer)
+, autoIncreaseTimer_(autoIncreaseTimer)
 , isAutoIncreaseModeActive_(false)
 {
     setupTimers();

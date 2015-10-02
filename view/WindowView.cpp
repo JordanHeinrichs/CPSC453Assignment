@@ -2,6 +2,7 @@
 
 #include "businessLogic/I_Game.h"
 #include "businessLogic/I_GameTickerService.h"
+#include "infrastructure/ConnectionHelpers.h"
 #include "view/I_Renderer.h"
 #include "view/I_WindowUi.h"
 #include "view/WindowView.h"
@@ -26,29 +27,29 @@ WindowView::~WindowView()
 
 void WindowView::setupKeyboardControls()
 {
-    connect(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
-    connect(&windowUi_, SIGNAL(movePieceRightRequested()), &game_, SLOT(moveRight()));
-    connect(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
-    connect(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
-    connect(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
+    safeConnect(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
+    safeConnect(&windowUi_, SIGNAL(movePieceRightRequested()), &game_, SLOT(moveRight()));
+    safeConnect(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
+    safeConnect(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
+    safeConnect(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
 }
 
 void WindowView::setupGameOptions()
 {
-    connect(&windowUi_, SIGNAL(newGameRequested()), &game_, SLOT(reset()));
-    connect(&windowUi_, SIGNAL(wireframeViewModeRequested()), this, SLOT(setViewModeWireframe()));
-    connect(&windowUi_, SIGNAL(faceViewModeRequested()), this, SLOT(setViewModeFace()));
-    connect(&windowUi_, SIGNAL(multicolouredViewModeRequested()), this, SLOT(setViewModeMulticoloured()));
+    safeConnect(&windowUi_, SIGNAL(newGameRequested()), &game_, SLOT(reset()));
+    safeConnect(&windowUi_, SIGNAL(wireframeViewModeRequested()), this, SLOT(setViewModeWireframe()));
+    safeConnect(&windowUi_, SIGNAL(faceViewModeRequested()), this, SLOT(setViewModeFace()));
+    safeConnect(&windowUi_, SIGNAL(multicolouredViewModeRequested()), this, SLOT(setViewModeMulticoloured()));
 }
 
 void WindowView::setupGameTickerOptions()
 {
-    connect(&windowUi_, SIGNAL(newGameRequested()), &gameTickerService_, SLOT(startGame()));
-    connect(&windowUi_.pauseAction(), SIGNAL(triggered()), this, SLOT(handlePauseGameTriggered()));
-    connect(&windowUi_, SIGNAL(speedUpGameRequested()), &gameTickerService_, SLOT(increaseRate()));
-    connect(&windowUi_, SIGNAL(slowDownGameRequested()), &gameTickerService_, SLOT(decreaseRate()));
-    connect(&windowUi_, SIGNAL(autoIncreaseGameSpeedRequested()), &gameTickerService_, SLOT(autoIncreaseRate()));
-    connect(&gameTickerService_, SIGNAL(gameActiveStateChanged(bool)), this, SLOT(handleGameActiveStateChanged(bool)));
+    safeConnect(&windowUi_, SIGNAL(newGameRequested()), &gameTickerService_, SLOT(startGame()));
+    safeConnect(&windowUi_.pauseAction(), SIGNAL(triggered()), this, SLOT(handlePauseGameTriggered()));
+    safeConnect(&windowUi_, SIGNAL(speedUpGameRequested()), &gameTickerService_, SLOT(increaseRate()));
+    safeConnect(&windowUi_, SIGNAL(slowDownGameRequested()), &gameTickerService_, SLOT(decreaseRate()));
+    safeConnect(&windowUi_, SIGNAL(autoIncreaseGameSpeedRequested()), &gameTickerService_, SLOT(autoIncreaseRate()));
+    safeConnect(&gameTickerService_, SIGNAL(gameActiveStateChanged(bool)), this, SLOT(handleGameActiveStateChanged(bool)));
 }
 
 void WindowView::setViewModeWireframe()
