@@ -1,4 +1,4 @@
-    #include "view/Renderer.h"
+#include "view/Renderer.h"
 #include <QTextStream>
 #include <QOpenGLBuffer>
 #include <cmath>
@@ -55,7 +55,7 @@ namespace
 Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
 , game_(game)
-, refreshDrawer_()
+, refreshTimer_()
 {
 }
 
@@ -72,7 +72,7 @@ void Renderer::initializeGL()
     glEnable(GL_DEPTH_TEST);
 
     // sets the background clour
-    glClearColor(0.0f, 0.5f, 0.7f, 1.0f);
+    glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
 
     program_ = new QOpenGLShaderProgram(this);
     program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "per-fragment-phong.vs.glsl");
@@ -82,11 +82,11 @@ void Renderer::initializeGL()
     colourAttribute_ = program_->attributeLocation("colour_attr");
     normalAttribute_ = program_->attributeLocation("normal_attr");
     projectionMatrixUniform_ = program_->uniformLocation("proj_matrix");
-    viewMatrixUniform_ = program_->uniformLocation("viewMatrix");
-    projectionMatrixUniform_ = program_->uniformLocation("modelMatrix");
+    viewMatrixUniform_ = program_->uniformLocation("view_matrix");
+    modelMatrixUniform_ = program_->uniformLocation("model_matrix");
     programID_ = program_->programId();
 
-    // setupBorderTriangleDrawing();
+    setupBorderTriangleDrawing();
     // setupCube();
 
     setupAndStartRefreshTimer();
@@ -97,7 +97,7 @@ void Renderer::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(programID_);
-    // glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LESS);
 
     // Modify the current projection matrix so that we move the
     // camera away from the origin.  We'll draw the game at the
@@ -117,65 +117,12 @@ void Renderer::paintGL()
 
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
-    glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
+    glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
-    // drawBorderTriangles();
+    drawBorderTriangles();
     // drawGamePieces();
 
-    std::vector<GLfloat> triVertices;
-    std::vector<GLfloat> triColours;
-    std::vector<GLfloat> triNormals;
-
-    float vectList [] = {
-        0.0, 0.0, 0.0,  // bottom left triangle
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-
-        9.0, 0.0, 0.0,  // bottom right triangle
-        10.0, 0.0, 0.0,
-        10.0, 1.0, 0.0,
-
-        0.0, 19.0, 0.0, // top left triangle
-        1.0, 20.0, 0.0,
-        0.0, 20.0, 0.0,
-
-        10.0, 19.0, 0.0,    // top right triangle
-        10.0, 20.0, 0.0,
-        9.0, 20.0, 0.0 };
-    triVertices.insert(triVertices.end(), vectList, vectList + 3*4*3); // 36 items in array
-
-    // shader supports per-vertex colour; add colour for each vertex add colours to colour list - use current colour
-    QColor borderColour = Qt::red;
-    float colourList [] = { (float)borderColour.redF(), (float)borderColour.greenF(), (float)borderColour.blueF() };
-    float normalList [] = { 0.0f, 0.0f, 1.0f }; // facing viewer
-    for (int v = 0; v < 4 * 3; v++)
-    {
-        triColours.insert(triColours.end(), colourList, colourList + 3); // 3 coordinates per vertex
-        triNormals.insert(triNormals.end(), normalList, normalList + 3); // 3 coordinates per vertex
-    }
-
     printf("Drawing triangles\n");
-
-    // draw border
-    if (triVertices.size() > 0)
-    {
-        // pass in the list of vertices and their associated colours
-        // 3 coordinates per vertex, or per colour
-        glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triVertices[0]);
-        glVertexAttribPointer(colourAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triColours[0]);
-        glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, GL_FALSE, 0, &triNormals[0]);
-
-        glEnableVertexAttribArray(positionAttribute_);
-        glEnableVertexAttribArray(colourAttribute_);
-        glEnableVertexAttribArray(normalAttribute_);
-
-        // draw triangles
-        glDrawArrays(GL_TRIANGLES, 0, triVertices.size()/3); // 3 coordinates per vertex
-
-        glDisableVertexAttribArray(normalAttribute_);
-        glDisableVertexAttribArray(colourAttribute_);
-        glDisableVertexAttribArray(positionAttribute_);
-    }
 
     program_->release();
 }
@@ -201,34 +148,37 @@ void Renderer::resizeGL(int w, int h)
 
 void Renderer::setupBorderTriangleDrawing()
 {
-    glGenBuffers(1, &triangleVertexBufferObject_);
-    glGenVertexArrays(1, &triangleVao_);
-    glBindVertexArray(triangleVao_);
-    glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject_);
-
     generateBorderTriangles();
     const int vertexBufferSize = triangleVertices_.size() * sizeof(GLfloat);
     const int coloursBufferSize = triangleColours_.size() * sizeof(GLfloat);
     const int normalsBufferSize = triangleNormals_.size() * sizeof(GLfloat);
     const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
 
+    // Initialize VBOs
+    glGenVertexArrays(1, &triangleVao_);
+    glBindVertexArray(triangleVao_);
+    glGenBuffers(1, &triangleVertexBufferObject_);
+    glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject_);
+
     glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
         NULL, GL_STATIC_DRAW);
 
+    // Upload the data to the GPU
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, triangleVertices_.data());
     glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, triangleColours_.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize + coloursBufferSize, triangleNormals_.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + coloursBufferSize, normalsBufferSize, triangleNormals_.data());
 
     glEnableVertexAttribArray(positionAttribute_);
     glEnableVertexAttribArray(colourAttribute_);
     glEnableVertexAttribArray(normalAttribute_);
 
+    // Specifiy where those are in the VBO
     glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(0));
+        reinterpret_cast<const GLvoid*>(0));
     glVertexAttribPointer(colourAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(vertexBufferSize));
+        reinterpret_cast<const GLvoid*>(vertexBufferSize));
     glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(vertexBufferSize + coloursBufferSize));
+        reinterpret_cast<const GLvoid*>(vertexBufferSize + coloursBufferSize));
 }
 
 void Renderer::generateBorderTriangles()
@@ -350,9 +300,9 @@ QColor Renderer::colorForPieceId(int pieceId) const
 
 void Renderer::setupAndStartRefreshTimer()
 {
-    refreshDrawer_.setInterval(REFRESH_PERIOD);
-    refreshDrawer_.start();
-    connect(&refreshDrawer_, SIGNAL(timeout()), this, SLOT(paintGL()));
+    refreshTimer_.setInterval(REFRESH_PERIOD);
+    refreshTimer_.start();
+    connect(&refreshTimer_, SIGNAL(timeout()), this, SLOT(paintGL()));
 }
 
 void Renderer::mousePressEvent(QMouseEvent * event)

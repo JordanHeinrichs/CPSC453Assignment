@@ -57,18 +57,18 @@ private:
 
 private:
     const I_Game& game_;
-    QTimer refreshDrawer_;
+    QTimer refreshTimer_;
 
     // member variables for shader manipulation
     GLuint programID_;
     GLuint positionAttribute_;
     GLuint colourAttribute_;
     GLuint normalAttribute_;
-    GLuint modelMatrixUniform_;
-    GLuint viewMatrixUniform_;
     GLuint projectionMatrixUniform_;
+    GLuint viewMatrixUniform_;
+    GLuint modelMatrixUniform_;
 
-    QOpenGLShaderProgram *program_;
+    QOpenGLShaderProgram* program_;
 
     GLuint boxVertexBufferObject_;
     GLuint boxVao_;
