@@ -27,8 +27,7 @@ public:
     Renderer(const I_Game& game, QWidget *parent = 0);
     virtual ~Renderer();
 
-    // TODO
-    void setViewMode(ViewMode /*viewMode*/) {}
+    void setViewMode(ViewMode viewMode);
 
 protected:
     // Called when OpenGL is first initialized
@@ -57,9 +56,12 @@ private:
     QColor colorForPieceId(int pieceId) const;
     void setupAndStartRefreshTimer();
 
+    void activateViewMode();
+
 private:
     const I_Game& game_;
     QTimer refreshTimer_;
+    ViewMode viewMode_;
 
     // member variables for shader manipulation
     GLuint programID_;

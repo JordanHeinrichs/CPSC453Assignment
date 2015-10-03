@@ -44,11 +44,12 @@ private:
     void createDrawMenu();
     void createGameMenu();
     void setupKeyboardHandling();
+    void setDefaultViewMode();
 
 private:
     QAction* pauseAction_;
 
     QAction* wireframeModeAction_;
-    QAction* frameModeAction_;
+    QAction* faceModeAction_;
     QAction* multicolouredModeAction_;
 };

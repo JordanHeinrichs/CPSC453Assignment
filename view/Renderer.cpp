@@ -8,6 +8,7 @@ namespace
     const int WIDTH_OF_GAME_SCREEN = 10;
     const int HEIGHT_OF_GAME_SCREEN = 24;
     const int REFRESH_PERIOD = 33;
+    const int GAME_SPACE_EMPTY = -1;
 
     const QVector<GLfloat> CUBE_VERTICES = {
         0.0, 0.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 0.0,
@@ -56,6 +57,7 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
 , game_(game)
 , refreshTimer_()
+, viewMode_(MultiColoured)
 {
 }
 
@@ -63,11 +65,14 @@ Renderer::~Renderer()
 {
 }
 
+void Renderer::setViewMode(ViewMode viewMode)
+{
+    viewMode_ = viewMode;
+}
+
 #include <stdio.h>
 void Renderer::initializeGL()
 {
-    printf("initializeGL\n");
-
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
 
@@ -119,9 +124,13 @@ void Renderer::paintGL()
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
+    activateViewMode();
     drawBorderTriangles();
     drawGameSpaceWell();
     drawGamePieces();
+
+    // Always set view mode back to GL_FILL for everything else.
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     program_->release();
 
@@ -285,7 +294,7 @@ void Renderer::drawGamePieces()
         for (int column = 0; column < game_.getWidth(); ++column)
         {
             const int pieceState = game_.get(row, column);
-            if (pieceState != -1)
+            if (pieceState != GAME_SPACE_EMPTY)
             {
                 drawCube(row, column, colorForPieceId(pieceState));
             }
@@ -319,6 +328,14 @@ void Renderer::setupAndStartRefreshTimer()
     refreshTimer_.setInterval(REFRESH_PERIOD);
     refreshTimer_.start();
     connect(&refreshTimer_, SIGNAL(timeout()), this, SLOT(paintGL()));
+}
+
+void Renderer::activateViewMode()
+{
+    if (viewMode_ == Wireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 }
 
 void Renderer::mousePressEvent(QMouseEvent * event)

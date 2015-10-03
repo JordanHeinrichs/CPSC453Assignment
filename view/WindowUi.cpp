@@ -36,6 +36,7 @@ WindowUi::WindowUi(QWidget* renderer, QWidget* parent)
     setCentralWidget(mainWidget);
 
     setupKeyboardHandling();
+    setDefaultViewMode();
 }
 
 WindowUi::~WindowUi()
@@ -53,7 +54,7 @@ void WindowUi::setDrawMode(QAction* action)
     {
         emit wireframeViewModeRequested();
     }
-    else if (action == frameModeAction_)
+    else if (action == faceModeAction_)
     {
         emit faceViewModeRequested();
     }
@@ -125,11 +126,11 @@ void WindowUi::createDrawMenu()
     wireframeModeAction_->setCheckable(true);
     drawModeGroup->addAction(wireframeModeAction_);
 
-    frameModeAction_ = new QAction("&Face", this);
-    frameModeAction_->setShortcut(QKeySequence(Qt::Key_F));
-    frameModeAction_->setStatusTip("Draws the game with faces.");
-    frameModeAction_->setCheckable(true);
-    drawModeGroup->addAction(frameModeAction_);
+    faceModeAction_ = new QAction("&Face", this);
+    faceModeAction_->setShortcut(QKeySequence(Qt::Key_F));
+    faceModeAction_->setStatusTip("Draws the game with faces.");
+    faceModeAction_->setCheckable(true);
+    drawModeGroup->addAction(faceModeAction_);
 
     multicolouredModeAction_ = new QAction("&Multicoloured", this);
     multicolouredModeAction_->setShortcut(QKeySequence(Qt::Key_M));
@@ -139,7 +140,7 @@ void WindowUi::createDrawMenu()
 
     QMenu* drawMenu = menuBar()->addMenu("&Draw");
     drawMenu->addAction(wireframeModeAction_);
-    drawMenu->addAction(frameModeAction_);
+    drawMenu->addAction(faceModeAction_);
     drawMenu->addAction(multicolouredModeAction_);
 }
 
@@ -174,4 +175,9 @@ void WindowUi::createGameMenu()
 void WindowUi::setupKeyboardHandling()
 {
     qApp->installEventFilter(this);
+}
+
+void WindowUi::setDefaultViewMode()
+{
+    multicolouredModeAction_->trigger();
 }
