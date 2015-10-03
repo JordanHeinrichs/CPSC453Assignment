@@ -6,14 +6,16 @@
 * Renderer - OpenGL widget for drawing scene
 */
 
-#include <QKeyEvent>
+#include <QElapsedTimer>
 #include <QHash>
+#include <QKeyEvent>
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_4_2_Core>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
+#include <QPoint>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
@@ -39,11 +41,11 @@ protected:
 
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
-    void mouseMoveEvent(QMouseEvent* event);
 
 private slots:
     // Called when the window needs to be redrawn
     void paintGL();
+    void recalculateRotationRates();
 
 private:
     enum PieceId
@@ -80,6 +82,7 @@ private:
     void setupAndStartRefreshTimer();
 
     void activateViewMode();
+    void zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const;
 
 private:
     const I_Game& game_;
@@ -110,4 +113,23 @@ private:
 
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
+
+    bool xAxisRotationActive_;
+    bool yAxisRotationActive_;
+    bool zAxisRotationActive_;
+    bool scalingActive_;
+
+    double xAxisRotationRate_;
+    double yAxisRotationRate_;
+    double zAxisRotationRate_;
+
+    double xAxisRotation_;
+    double yAxisRotation_;
+    double zAxisRotation_;
+
+    QPoint lastMousePosition_;
+
+    QElapsedTimer timeBetweenMouseMoveXEvents_;
+    QElapsedTimer timeBetweenMouseMoveYEvents_;
+    QElapsedTimer timeBetweenMouseMoveZEvents_;
 };

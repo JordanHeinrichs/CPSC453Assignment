@@ -46,6 +46,16 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 , game_(game)
 , refreshTimer_()
 , viewMode_(MultiColored)
+, xAxisRotationActive_(false)
+, yAxisRotationActive_(false)
+, zAxisRotationActive_(false)
+, scalingActive_(false)
+, xAxisRotationRate_(0.0)
+, yAxisRotationRate_(0.0)
+, zAxisRotationRate_(0.0)
+, xAxisRotation_(0.0)
+, yAxisRotation_(0.0)
+, zAxisRotation_(0.0)
 {
 }
 
@@ -97,16 +107,14 @@ void Renderer::paintGL()
     // origin, and we need to back up to see it.
     QMatrix4x4 viewMatrix;
     viewMatrix.translate(0.0f, 0.0f, -40.0f);
+
+    xAxisRotation_ += xAxisRotationRate_;
+    yAxisRotation_ += yAxisRotationRate_;
+    zAxisRotation_ += zAxisRotationRate_;
+    viewMatrix.rotate(xAxisRotation_, 1, 0, 0);
+    viewMatrix.rotate(yAxisRotation_, 0, 1, 0);
+    viewMatrix.rotate(zAxisRotation_, 0, 0, 1);
     glUniformMatrix4fv(viewMatrixUniform_, 1, false, viewMatrix.data());
-
-    // Not implemented: set up lighting (if necessary)
-    // Not implemented: scale and rotate the scene
-
-
-    // You'll be drawing unit cubes, so the game will have width
-    // 10 and height 24 (game = 20, stripe = 4).  Let's translate
-    // the game so that we can draw it starting at (0,0) but have
-    // it appear centered in the window.
 
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
@@ -235,7 +243,6 @@ void Renderer::setupCube()
             NULL, GL_STATIC_DRAW);
 
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERTICES.data());
-        printf("Setting buffer subData to be %f, %f, %f\n", cubeColors_.at(i).at(0), cubeColors_.at(i).at(1), cubeColors_.at(i).at(2));
         glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, colorsBufferSize, cubeColors_.at(i).data());
         glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + colorsBufferSize, normalsBufferSize, CUBE_NORMALS.data());
 
@@ -346,6 +353,7 @@ void Renderer::setupAndStartRefreshTimer()
     refreshTimer_.setInterval(REFRESH_PERIOD);
     refreshTimer_.start();
     connect(&refreshTimer_, SIGNAL(timeout()), this, SLOT(paintGL()));
+    connect(&refreshTimer_, SIGNAL(timeout()), this, SLOT(recalculateRotationRates()));
 }
 
 void Renderer::activateViewMode()
@@ -356,20 +364,75 @@ void Renderer::activateViewMode()
     }
 }
 
-void Renderer::mousePressEvent(QMouseEvent * event)
+void Renderer::recalculateRotationRates()
 {
-    QTextStream cout(stdout);
-    cout << "Stub: Button " << event->button() << " pressed.\n";
+    const QPoint currentMousePosition = this->mapFromGlobal(QCursor::pos());
+    QPoint mousePointDelta = currentMousePosition - lastMousePosition_;
+    if (timeBetweenMouseMoveXEvents_.isValid())
+    {
+        xAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+            timeBetweenMouseMoveXEvents_.msecsSinceReference();
+        zeroAxisRotationRateIfWithinDeadZone(xAxisRotation_);
+        timeBetweenMouseMoveXEvents_.restart();
+    }
+    if (timeBetweenMouseMoveYEvents_.isValid())
+    {
+        yAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+            timeBetweenMouseMoveYEvents_.msecsSinceReference();
+        zeroAxisRotationRateIfWithinDeadZone(yAxisRotation_);
+        timeBetweenMouseMoveYEvents_.restart();
+    }
+    if (timeBetweenMouseMoveZEvents_.isValid())
+    {
+        zAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+            timeBetweenMouseMoveZEvents_.msecsSinceReference();
+        zeroAxisRotationRateIfWithinDeadZone(zAxisRotation_);
+        timeBetweenMouseMoveZEvents_.restart();
+    }
+
+    lastMousePosition_ = currentMousePosition;
 }
 
-void Renderer::mouseReleaseEvent(QMouseEvent * event)
+void Renderer::zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const
 {
-    QTextStream cout(stdout);
-    cout << "Stub: Button " << event->button() << " pressed.\n";
+    if (rotationRate < 0.5)
+    {
+        rotationRate = 0.0;
+    }
 }
 
-void Renderer::mouseMoveEvent(QMouseEvent * event)
+void Renderer::mousePressEvent(QMouseEvent* event)
 {
-    QTextStream cout(stdout);
-    cout << "Stub: Motion at " << event->x() << ", " << event->y() << ".\n";
+    switch(event->button())
+    {
+    case Qt::LeftButton:
+        timeBetweenMouseMoveXEvents_.start();
+        break;
+    case Qt::MiddleButton:
+        timeBetweenMouseMoveYEvents_.start();
+        break;
+    case Qt::RightButton:
+        timeBetweenMouseMoveZEvents_.start();
+        break;
+    default:
+        break;
+    }
+}
+
+void Renderer::mouseReleaseEvent(QMouseEvent* event)
+{
+    switch(event->button())
+    {
+    case Qt::LeftButton:
+        timeBetweenMouseMoveXEvents_.invalidate();
+        break;
+    case Qt::MiddleButton:
+        timeBetweenMouseMoveYEvents_.invalidate();
+        break;
+    case Qt::RightButton:
+        timeBetweenMouseMoveZEvents_.invalidate();
+        break;
+    default:
+        break;
+    }
 }
