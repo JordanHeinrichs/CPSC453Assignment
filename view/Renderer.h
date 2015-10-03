@@ -41,7 +41,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
 
-protected slots:
+private slots:
     // Called when the window needs to be redrawn
     void paintGL();
 
@@ -50,7 +50,7 @@ private:
     void generateBorderTriangles();
     void drawBorderTriangles();
     void setupCube();
-    void drawCube(int row, int coloumn, QColor color);
+    void drawCube(int row, int column, QColor color);
     void drawGamePieces();
     QColor colorForPieceId(int pieceId) const;
     void setupAndStartRefreshTimer();

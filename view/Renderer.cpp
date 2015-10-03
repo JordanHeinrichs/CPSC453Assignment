@@ -87,7 +87,7 @@ void Renderer::initializeGL()
     programID_ = program_->programId();
 
     setupBorderTriangleDrawing();
-    // setupCube();
+    setupCube();
 
     setupAndStartRefreshTimer();
 }
@@ -120,14 +120,13 @@ void Renderer::paintGL()
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
     drawBorderTriangles();
-    // drawGamePieces();
-
-    printf("Drawing triangles\n");
+    drawGamePieces();
 
     program_->release();
+
+    update();
 }
 
-// called by the Qt GUI system, to allow OpenGL to respond to widget resizing
 void Renderer::resizeGL(int w, int h)
 {
     // width and height are better variables to use
@@ -221,22 +220,22 @@ void Renderer::drawBorderTriangles()
 
 void Renderer::setupCube()
 {
-    glGenBuffers(1, &boxVertexBufferObject_);
-    glGenVertexArrays(1, &boxVao_);
-    glBindVertexArray(boxVao_);
-    glBindBuffer(GL_ARRAY_BUFFER, boxVertexBufferObject_);
-
     const int vertexBufferSize = CUBE_VERTICES.size() * sizeof(GLfloat);
     const int coloursBufferSize = CUBE_COLOUR_GREEN.size() * sizeof(GLfloat);
     const int normalsBufferSize = CUBE_NORMALS.size() * sizeof(GLfloat);
     const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
+
+    glGenVertexArrays(1, &boxVao_);
+    glBindVertexArray(boxVao_);
+    glGenBuffers(1, &boxVertexBufferObject_);
+    glBindBuffer(GL_ARRAY_BUFFER, boxVertexBufferObject_);
 
     glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
         NULL, GL_STATIC_DRAW);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERTICES.data());
     glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, CUBE_COLOUR_GREEN.data());
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize + coloursBufferSize, CUBE_NORMALS.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + coloursBufferSize, normalsBufferSize, CUBE_NORMALS.data());
 
     glEnableVertexAttribArray(positionAttribute_);
     glEnableVertexAttribArray(colourAttribute_);
@@ -250,26 +249,26 @@ void Renderer::setupCube()
         reinterpret_cast<const void*>(vertexBufferSize + coloursBufferSize));
 }
 
-void Renderer::drawCube(int row, int coloumn, QColor color)
+void Renderer::drawCube(int row, int column, QColor color)
 {
     Q_UNUSED(color);
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
-    modelMatrix.translate(row, coloumn, 0.0f);
-    glUniformMatrix4fv(projectionMatrixUniform_, 1, false, modelMatrix.data());
+    modelMatrix.translate(column, row, 0.0f);
+    glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
-    glBindVertexArray(boxVao_);
     glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
 }
 
 void Renderer::drawGamePieces()
 {
-    for (int row = 0; row < game_.getWidth(); ++row)
+    glBindVertexArray(boxVao_);
+    for (int row = 0; row < game_.getHeight() + 4; ++row)
     {
-        for (int column = 0; column < game_.getHeight() + 4; ++column)
+        for (int column = 0; column < game_.getWidth(); ++column)
         {
             const int pieceState = game_.get(row, column);
-            if (pieceState == -1)
+            if (pieceState != -1)
             {
                 drawCube(row, column, colorForPieceId(pieceState));
             }

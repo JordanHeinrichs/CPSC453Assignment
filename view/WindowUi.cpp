@@ -72,19 +72,19 @@ bool WindowUi::eventFilter(QObject* object, QEvent* event)
         {
         case Qt::Key_Right:
             emit movePieceRightRequested();
-            break;
+            return true;
         case Qt::Key_Left:
             emit movePieceLeftRequested();
-            break;
+            return true;
         case Qt::Key_Up:
             emit rotatePieceCounterClockwiseRequested();
-            break;
+            return true;
         case Qt::Key_Down:
             emit rotatePieceClockwiseRequested();
-            break;
+            return true;
         case Qt::Key_Space:
             emit dropPieceRequested();
-            break;
+            return true;
         }
     }
     return QObject::eventFilter(object, event);
