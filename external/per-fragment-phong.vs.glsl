@@ -10,7 +10,7 @@
 
 // Per-vertex inputs
 layout (location = 0) in vec4 position_attr;
-layout (location = 1) in vec3 colour_attr;
+layout (location = 1) in vec3 color_attr;
 layout (location = 2) in vec3 normal_attr;
 
 // Matrices we'll need
@@ -47,8 +47,8 @@ void main(void)
     // Calculate view vector
     vs_out.V = -P.xyz;
 
-    // Store the colour attribute
-    vs_out.C = colour_attr;
+    // Store the color attribute
+    vs_out.C = color_attr;
 
     // Calculate the clip-space position of each vertex
     gl_Position = proj_matrix * P;

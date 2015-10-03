@@ -13,7 +13,7 @@ public:
     {
         Wireframe,
         Face,
-        MultiColoured
+        MultiColored
     };
 
     virtual void setViewMode(ViewMode viewMode) = 0;

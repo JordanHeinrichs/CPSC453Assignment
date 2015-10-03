@@ -2,6 +2,8 @@
 #include <QTextStream>
 #include <QOpenGLBuffer>
 #include <cmath>
+#include <cstdlib>
+#include <QTime>
 
 namespace
 {
@@ -37,27 +39,13 @@ namespace
         0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
         1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,
         1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0};
-
-    const QVector<GLfloat> CUBE_COLOUR_GREEN = {
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,
-        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0};
 }
 
 Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
 , game_(game)
 , refreshTimer_()
-, viewMode_(MultiColoured)
+, viewMode_(MultiColored)
 {
 }
 
@@ -70,7 +58,7 @@ void Renderer::setViewMode(ViewMode viewMode)
     viewMode_ = viewMode;
 }
 
-#include <stdio.h>
+#include <stdio.h> // TODO
 void Renderer::initializeGL()
 {
     initializeOpenGLFunctions();
@@ -84,7 +72,7 @@ void Renderer::initializeGL()
     program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "per-fragment-phong.fs.glsl");
     program_->link();
     positionAttribute_ = program_->attributeLocation("position_attr");
-    colourAttribute_ = program_->attributeLocation("colour_attr");
+    colorAttribute_ = program_->attributeLocation("color_attr");
     normalAttribute_ = program_->attributeLocation("normal_attr");
     projectionMatrixUniform_ = program_->uniformLocation("proj_matrix");
     viewMatrixUniform_ = program_->uniformLocation("view_matrix");
@@ -159,9 +147,9 @@ void Renderer::setupBorderTriangleDrawing()
 {
     generateBorderTriangles();
     const int vertexBufferSize = triangleVertices_.size() * sizeof(GLfloat);
-    const int coloursBufferSize = triangleColours_.size() * sizeof(GLfloat);
+    const int colorsBufferSize = triangleColors_.size() * sizeof(GLfloat);
     const int normalsBufferSize = triangleNormals_.size() * sizeof(GLfloat);
-    const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
+    const int totalBufferSize = vertexBufferSize + colorsBufferSize + normalsBufferSize;
 
     // Initialize VBOs
     glGenVertexArrays(1, &triangleVao_);
@@ -174,20 +162,20 @@ void Renderer::setupBorderTriangleDrawing()
 
     // Upload the data to the GPU
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, triangleVertices_.data());
-    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, triangleColours_.data());
-    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + coloursBufferSize, normalsBufferSize, triangleNormals_.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, colorsBufferSize, triangleColors_.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + colorsBufferSize, normalsBufferSize, triangleNormals_.data());
 
     glEnableVertexAttribArray(positionAttribute_);
-    glEnableVertexAttribArray(colourAttribute_);
+    glEnableVertexAttribArray(colorAttribute_);
     glEnableVertexAttribArray(normalAttribute_);
 
     // Specifiy where those are in the VBO
     glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
         reinterpret_cast<const GLvoid*>(0));
-    glVertexAttribPointer(colourAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
+    glVertexAttribPointer(colorAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
         reinterpret_cast<const GLvoid*>(vertexBufferSize));
     glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const GLvoid*>(vertexBufferSize + coloursBufferSize));
+        reinterpret_cast<const GLvoid*>(vertexBufferSize + colorsBufferSize));
 }
 
 void Renderer::generateBorderTriangles()
@@ -209,15 +197,15 @@ void Renderer::generateBorderTriangles()
         10.0, 20.0, 0.0,
         9.0, 20.0, 0.0};
 
-    triangleColours_.clear();
+    triangleColors_.clear();
     triangleNormals_.clear();
-    QColor borderColour = Qt::red;
+    QColor borderColor = Qt::red;
     for (int vertex = 0; vertex < 4 * 3; vertex++)
     {
-        triangleColours_ << QVector<GLfloat>(
-            {static_cast<GLfloat>(borderColour.redF()),
-            static_cast<GLfloat>(borderColour.greenF()),
-            static_cast<GLfloat>(borderColour.blueF())});
+        triangleColors_ << QVector<GLfloat>(
+            {static_cast<GLfloat>(borderColor.redF()),
+            static_cast<GLfloat>(borderColor.greenF()),
+            static_cast<GLfloat>(borderColor.blueF())});
         triangleNormals_ << QVector<GLfloat>({ 0.0f, 0.0f, 1.0f });
     }
 }
@@ -230,65 +218,104 @@ void Renderer::drawBorderTriangles()
 
 void Renderer::setupCube()
 {
+    populateCubeColors();
     const int vertexBufferSize = CUBE_VERTICES.size() * sizeof(GLfloat);
-    const int coloursBufferSize = CUBE_COLOUR_GREEN.size() * sizeof(GLfloat);
+    const int colorsBufferSize = cubeColors_.at(0).size() * sizeof(GLfloat);
     const int normalsBufferSize = CUBE_NORMALS.size() * sizeof(GLfloat);
-    const int totalBufferSize = vertexBufferSize + coloursBufferSize + normalsBufferSize;
+    const int totalBufferSize = vertexBufferSize + colorsBufferSize + normalsBufferSize;
 
-    glGenVertexArrays(1, &boxVao_);
-    glBindVertexArray(boxVao_);
-    glGenBuffers(1, &boxVertexBufferObject_);
-    glBindBuffer(GL_ARRAY_BUFFER, boxVertexBufferObject_);
+    for (int i = 0; i < NumberOfColors; ++i)
+    {
+        glGenVertexArrays(1, &boxVertexArrayObjects_[i]);
+        glBindVertexArray(boxVertexArrayObjects_[i]);
+        glGenBuffers(1, &boxVertexBufferObjects_[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, boxVertexBufferObjects_[i]);
 
-    glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
-        NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, totalBufferSize,
+            NULL, GL_STATIC_DRAW);
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERTICES.data());
-    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, coloursBufferSize, CUBE_COLOUR_GREEN.data());
-    glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + coloursBufferSize, normalsBufferSize, CUBE_NORMALS.data());
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, CUBE_VERTICES.data());
+        printf("Setting buffer subData to be %f, %f, %f\n", cubeColors_.at(i).at(0), cubeColors_.at(i).at(1), cubeColors_.at(i).at(2));
+        glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize, colorsBufferSize, cubeColors_.at(i).data());
+        glBufferSubData(GL_ARRAY_BUFFER, vertexBufferSize + colorsBufferSize, normalsBufferSize, CUBE_NORMALS.data());
 
-    glEnableVertexAttribArray(positionAttribute_);
-    glEnableVertexAttribArray(colourAttribute_);
-    glEnableVertexAttribArray(normalAttribute_);
+        glEnableVertexAttribArray(positionAttribute_);
+        glEnableVertexAttribArray(colorAttribute_);
+        glEnableVertexAttribArray(normalAttribute_);
 
-    glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(0));
-    glVertexAttribPointer(colourAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(vertexBufferSize));
-    glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
-        reinterpret_cast<const void*>(vertexBufferSize + coloursBufferSize));
+        glVertexAttribPointer(positionAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
+            reinterpret_cast<const void*>(0));
+        glVertexAttribPointer(colorAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
+            reinterpret_cast<const void*>(vertexBufferSize));
+        glVertexAttribPointer(normalAttribute_, 3, GL_FLOAT, 0, GL_FALSE,
+            reinterpret_cast<const void*>(vertexBufferSize + colorsBufferSize));
+    }
 }
 
-void Renderer::drawCube(int row, int column, QColor color)
+void Renderer::populateCubeColors()
 {
-    Q_UNUSED(color);
+    QList<QColor> colorsToAdd = {Qt::yellow, Qt::red, Qt::blue, Qt::cyan, Qt::magenta,
+        Qt::green, Qt::gray, Qt::darkGray};
+
+    for (int colorIndex = 0; colorIndex < Piece0MultiColored; ++colorIndex)
+    {
+        QVector<GLfloat> cubeColor;
+        for (int i = 0; i < CUBE_VERTICES.size() / 3; ++i)
+        {
+            cubeColor << QVector<GLfloat>(
+                {static_cast<GLfloat>(colorsToAdd.at(colorIndex).redF()),
+                static_cast<GLfloat>(colorsToAdd.at(colorIndex).greenF()),
+                static_cast<GLfloat>(colorsToAdd.at(colorIndex).blueF())});
+        }
+        cubeColors_ << cubeColor;
+    }
+
+    // Randomize the colors.
+    qsrand(QTime().msecsSinceStartOfDay());
+    for (int colorIndex = Piece0MultiColored; colorIndex <= Piece6MultiColored; ++colorIndex)
+    {
+        QVector<GLfloat> cubeColor;
+        // Both triangles on the same face are to be the same color.
+        for (int i = 0; i < CUBE_VERTICES.size() / (3 * 3 * 2); ++i)
+        {
+            QVector<GLfloat> faceColor =
+                {static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX)),
+                static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX)),
+                static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX))};
+            cubeColor << faceColor << faceColor << faceColor << faceColor << faceColor << faceColor;
+        }
+        cubeColors_ << cubeColor;
+    }
+}
+
+void Renderer::drawCube(int row, int column, PieceId pieceId)
+{
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(-5.0f, -12.0f, 0.0f);
     modelMatrix.translate(column, row, 0.0f);
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
+    // printf("Drawing cube with pieceId %d\n", pieceId);
+    glBindVertexArray(boxVertexArrayObjects_[pieceId]);
     glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
 }
 
 void Renderer::drawGameSpaceWell()
 {
-    glBindVertexArray(boxVao_);
-
     for (int column = -1; column <= game_.getWidth(); column++)
     {
-        drawCube(-1, column, Qt::darkGray);
+        drawCube(-1, column, Border);
     }
 
     for (int row = 0; row < game_.getHeight(); row++)
     {
-        drawCube(row, -1, Qt::darkGray);
-        drawCube(row, game_.getWidth(), Qt::darkGray);
+        drawCube(row, -1, Border);
+        drawCube(row, game_.getWidth(), Border);
     }
 }
 
 void Renderer::drawGamePieces()
 {
-    glBindVertexArray(boxVao_);
     for (int row = 0; row < game_.getHeight() + 4; ++row)
     {
         for (int column = 0; column < game_.getWidth(); ++column)
@@ -296,30 +323,21 @@ void Renderer::drawGamePieces()
             const int pieceState = game_.get(row, column);
             if (pieceState != GAME_SPACE_EMPTY)
             {
-                drawCube(row, column, colorForPieceId(pieceState));
+                drawCube(row, column, pieceIdForViewMode(pieceState));
             }
         }
     }
 }
 
-QColor Renderer::colorForPieceId(int pieceId) const
+Renderer::PieceId Renderer::pieceIdForViewMode(int pieceState) const
 {
-    switch(pieceId)
+    if (viewMode_ == MultiColored)
     {
-    case 0:
-        return Qt::red;
-    case 1:
-        return Qt::green;
-    case 2:
-        return Qt::blue;
-    case 3:
-        return Qt::cyan;
-    case 4:
-        return Qt::magenta;
-    case 5:
-        return Qt::yellow;
-    default:
-        return Qt::gray;
+        return static_cast<PieceId>(pieceState + Piece0MultiColored);
+    }
+    else
+    {
+        return static_cast<PieceId>(pieceState);
     }
 }
 

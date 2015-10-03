@@ -7,12 +7,13 @@
 */
 
 #include <QKeyEvent>
+#include <QHash>
 #include <QMatrix4x4>
-#include <QOpenGLWidget>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_4_2_Core>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLWidget>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
@@ -45,15 +46,37 @@ private slots:
     void paintGL();
 
 private:
+    enum PieceId
+    {
+        Piece0 = 0,
+        Piece1,
+        Piece2,
+        Piece3,
+        Piece4,
+        Piece5,
+        Piece6,
+        Border,
+        Piece0MultiColored,
+        Piece1MultiColored,
+        Piece2MultiColored,
+        Piece3MultiColored,
+        Piece4MultiColored,
+        Piece5MultiColored,
+        Piece6MultiColored,
+        NumberOfColors
+    };
+
     void setupBorderTriangleDrawing();
     void generateBorderTriangles();
     void drawBorderTriangles();
 
     void setupCube();
-    void drawCube(int row, int column, QColor color);
+    void populateCubeColors();
+    void drawCube(int row, int column, PieceId pieceId);
     void drawGameSpaceWell();
     void drawGamePieces();
-    QColor colorForPieceId(int pieceId) const;
+
+    PieceId pieceIdForViewMode(int pieceState) const;
     void setupAndStartRefreshTimer();
 
     void activateViewMode();
@@ -66,7 +89,7 @@ private:
     // member variables for shader manipulation
     GLuint programID_;
     GLuint positionAttribute_;
-    GLuint colourAttribute_;
+    GLuint colorAttribute_;
     GLuint normalAttribute_;
     GLuint projectionMatrixUniform_;
     GLuint viewMatrixUniform_;
@@ -74,14 +97,16 @@ private:
 
     QOpenGLShaderProgram* program_;
 
-    GLuint boxVertexBufferObject_;
-    GLuint boxVao_;
+    GLuint boxVertexBufferObjects_[NumberOfColors];
+    GLuint boxVertexArrayObjects_[NumberOfColors];
     GLuint triangleVertexBufferObject_;
     GLuint triangleVao_;
 
     QVector<GLfloat> triangleVertices_;
-    QVector<GLfloat> triangleColours_;
+    QVector<GLfloat> triangleColors_;
     QVector<GLfloat> triangleNormals_;
+
+    QVector<QVector<GLfloat> > cubeColors_;
 
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);

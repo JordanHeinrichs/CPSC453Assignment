@@ -64,7 +64,7 @@ void WindowView::setViewModeFace()
 
 void WindowView::setViewModeMulticoloured()
 {
-    renderer_.setViewMode(I_Renderer::MultiColoured);
+    renderer_.setViewMode(I_Renderer::MultiColored);
 }
 
 void WindowView::handlePauseGameTriggered()
