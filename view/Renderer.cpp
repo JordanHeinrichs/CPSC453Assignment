@@ -120,6 +120,7 @@ void Renderer::paintGL()
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
     drawBorderTriangles();
+    drawGameSpaceWell();
     drawGamePieces();
 
     program_->release();
@@ -258,6 +259,22 @@ void Renderer::drawCube(int row, int column, QColor color)
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
     glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
+}
+
+void Renderer::drawGameSpaceWell()
+{
+    glBindVertexArray(boxVao_);
+
+    for (int column = -1; column <= game_.getWidth(); column++)
+    {
+        drawCube(-1, column, Qt::darkGray);
+    }
+
+    for (int row = 0; row < game_.getHeight(); row++)
+    {
+        drawCube(row, -1, Qt::darkGray);
+        drawCube(row, game_.getWidth(), Qt::darkGray);
+    }
 }
 
 void Renderer::drawGamePieces()

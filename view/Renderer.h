@@ -49,8 +49,10 @@ private:
     void setupBorderTriangleDrawing();
     void generateBorderTriangles();
     void drawBorderTriangles();
+
     void setupCube();
     void drawCube(int row, int column, QColor color);
+    void drawGameSpaceWell();
     void drawGamePieces();
     QColor colorForPieceId(int pieceId) const;
     void setupAndStartRefreshTimer();
