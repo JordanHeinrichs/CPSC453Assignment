@@ -6,6 +6,7 @@ namespace
     const int MINIMUM_TICK_INTERVAL = 100;
     const int MAXIMUM_TICK_INTERVAL = 3000;
     const int TICK_INTERVAL_ADJUSTMENT_AMOUNT = 100;
+    const int INITIAL_TICK_INTERVAL = 1000;
 
     const int GAME_OVER = -1;
 }
@@ -64,33 +65,33 @@ TEST_F(TestGameTickerService, willNotStartAutoIncreaseTimerIfNotInAutoIncreaseMo
 
 TEST_F(TestGameTickerService, willIncreaseRateOnAutoIncreaseTimeout)
 {
-    ON_CALL(tickTimer_, interval()).WillByDefault(Return(300));
-    const int expectedValue = 300 - TICK_INTERVAL_ADJUSTMENT_AMOUNT;
+    const int expectedValue = INITIAL_TICK_INTERVAL - TICK_INTERVAL_ADJUSTMENT_AMOUNT;
     patient_.autoIncreaseRate();
-
-    EXPECT_CALL(tickTimer_, setInterval(expectedValue));
-
     autoIncreaseTimer_.emitTimeout();
+
+    EXPECT_CALL(tickTimer_, start(expectedValue));
+
+    tickTimer_.emitTimeout();
 }
 
 TEST_F(TestGameTickerService, willDecreaseIntervalOnIncreaseRate)
 {
-    ON_CALL(tickTimer_, interval()).WillByDefault(Return(300));
-    const int expectedValue = 300 - TICK_INTERVAL_ADJUSTMENT_AMOUNT;
-
-    EXPECT_CALL(tickTimer_, setInterval(expectedValue));
-
+    const int expectedValue = INITIAL_TICK_INTERVAL - TICK_INTERVAL_ADJUSTMENT_AMOUNT;
     patient_.increaseRate();
+
+    EXPECT_CALL(tickTimer_, start(expectedValue));
+
+    tickTimer_.emitTimeout();
 }
 
 TEST_F(TestGameTickerService, willIncreaseIntervalOnDecreaseRate)
 {
-    ON_CALL(tickTimer_, interval()).WillByDefault(Return(300));
-    const int expectedValue = 300 + TICK_INTERVAL_ADJUSTMENT_AMOUNT;
-
-    EXPECT_CALL(tickTimer_, setInterval(expectedValue));
-
+    const int expectedValue = INITIAL_TICK_INTERVAL + TICK_INTERVAL_ADJUSTMENT_AMOUNT;
     patient_.decreaseRate();
+
+    EXPECT_CALL(tickTimer_, start(expectedValue));
+
+    tickTimer_.emitTimeout();
 }
 
 TEST_F(TestGameTickerService, willStopTimersIfGameOver)
@@ -105,20 +106,26 @@ TEST_F(TestGameTickerService, willStopTimersIfGameOver)
 
 TEST_F(TestGameTickerService, willNotIncreaseRateBelowMinimumPeriod)
 {
-    ON_CALL(tickTimer_, interval()).WillByDefault(Return(MINIMUM_TICK_INTERVAL));
+    for (int i = 0; i < 100; i++)
+    {
+        patient_.increaseRate();
+    }
 
-    EXPECT_CALL(tickTimer_, setInterval(MINIMUM_TICK_INTERVAL));
+    EXPECT_CALL(tickTimer_, start(MINIMUM_TICK_INTERVAL));
 
-    patient_.increaseRate();
+    tickTimer_.emitTimeout();
 }
 
 TEST_F(TestGameTickerService, willNotDecreaseRateAboveMaximumPeriod)
 {
-    ON_CALL(tickTimer_, interval()).WillByDefault(Return(MAXIMUM_TICK_INTERVAL));
+    for (int i = 0; i < 100; i++)
+    {
+        patient_.decreaseRate();
+    }
 
-    EXPECT_CALL(tickTimer_, setInterval(MAXIMUM_TICK_INTERVAL));
+    EXPECT_CALL(tickTimer_, start(MAXIMUM_TICK_INTERVAL));
 
-    patient_.decreaseRate();
+    tickTimer_.emitTimeout();
 }
 
 TEST_F(TestGameTickerService, willIsGameActiveReturnCorrectValue)

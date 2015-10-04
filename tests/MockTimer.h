@@ -12,6 +12,7 @@ public:
     virtual ~MockTimer();
 
     MOCK_METHOD0(start, void());
+    MOCK_METHOD1(start, void(int interval));
     MOCK_METHOD0(stop, void());
 
     MOCK_CONST_METHOD0(interval, int());

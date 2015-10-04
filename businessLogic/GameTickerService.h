@@ -35,4 +35,5 @@ private:
     I_Timer& tickTimer_;
     I_Timer& autoIncreaseTimer_;
     bool isAutoIncreaseModeActive_;
+    int interval_;
 };

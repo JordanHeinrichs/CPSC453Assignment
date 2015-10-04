@@ -6,6 +6,7 @@ public:
     virtual ~I_Timer() {}
 
     virtual void start() = 0;
+    virtual void start(int interval) = 0;
     virtual void stop() = 0;
 
     virtual int interval() const = 0;

@@ -13,6 +13,7 @@ public:
 
 public slots:
     void start();
+    void start(int interval);
     void stop();
 
 public:
@@ -34,6 +35,11 @@ private:
 inline void QtTimer::start()
 {
     timer_.start();
+}
+
+inline void QtTimer::start(int interval)
+{
+    timer_.start(interval);
 }
 
 inline void QtTimer::stop()

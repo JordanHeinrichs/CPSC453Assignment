@@ -23,6 +23,7 @@ GameTickerService::GameTickerService(I_Game& game, I_Timer& tickTimer, I_Timer& 
 , tickTimer_(tickTimer)
 , autoIncreaseTimer_(autoIncreaseTimer)
 , isAutoIncreaseModeActive_(false)
+, interval_(INITIAL_TICK_INTERVAL)
 {
     setupTimers();
 }
@@ -62,16 +63,16 @@ void GameTickerService::unpauseGame()
 
 void GameTickerService::increaseRate()
 {
-    tickTimer_.setInterval(qBound(MINIMUM_TICK_INTERVAL,
-        tickTimer_.interval() - TICK_INTERVAL_ADJUSTMENT_AMOUNT,
-        MAXIMUM_TICK_INTERVAL));
+    interval_ = qBound(MINIMUM_TICK_INTERVAL,
+        interval_ - TICK_INTERVAL_ADJUSTMENT_AMOUNT,
+        MAXIMUM_TICK_INTERVAL);
 }
 
 void GameTickerService::decreaseRate()
 {
-    tickTimer_.setInterval(qBound(MINIMUM_TICK_INTERVAL,
-        tickTimer_.interval() + TICK_INTERVAL_ADJUSTMENT_AMOUNT,
-        MAXIMUM_TICK_INTERVAL));
+    interval_ = qBound(MINIMUM_TICK_INTERVAL,
+        interval_ + TICK_INTERVAL_ADJUSTMENT_AMOUNT,
+        MAXIMUM_TICK_INTERVAL);
     stopAutoIncreasing();
 }
 
@@ -88,6 +89,7 @@ void GameTickerService::tickGame()
     {
         stopGame();
     }
+    tickTimer_.start(interval_);
 }
 
 void GameTickerService::stopGame()
@@ -99,7 +101,10 @@ void GameTickerService::stopGame()
 
 void GameTickerService::setupTimers()
 {
-    tickTimer_.setSingleShot(false);
+    // Using a single shot timer so that the interval can be set on each
+    // tick. This is to get around the issue of setting the interval mid tick
+    // which resets the current period.
+    tickTimer_.setSingleShot(true);
     tickTimer_.setInterval(INITIAL_TICK_INTERVAL);
     safeConnect(&tickTimer_, SIGNAL(timeout()), this, SLOT(tickGame()));
     autoIncreaseTimer_.setSingleShot(false);
