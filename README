@@ -22,8 +22,51 @@ To run the program, on the terminal enter the following command:
 
 === 2. PROGRAM USE: ===
 
-<Insert a precise user manual on how to interact with the program; eg.
-short-cut keys, mouse movements, menu items, widgets, etc.>
+When the program is open the game is displaced in face view mode and is not started.
+
+The view mode options are:
+    - Wireframe (W) - Shows the wireframe.
+    - Face (F) - All sides of a cube are the same color
+    - Multicoloured (M) - All sides of a cube are different colors
+
+The File options are:
+    - New Game (N) Starts a new game
+    - Reset (R) resets the view to the starting angle
+    - Quit(Q) quits the game
+
+The Game options are:
+    - Pause/Unpause (P) Pauses or unpauses the game respectively
+    - Speed up (Page up) speeds up the game
+    - Slow down (Page down) slows the game down
+    - Auto increase speed speed (A) will slowly increase the speed of the game. Press again or press slow down
+        to exit this mode.
+
+The game controls are:
+    - Right arrow moves the active game piece right
+    - Left arrow moves the active game piece left
+    - Up arrow rotates CCW
+    - Down arrow rotates CW
+    - Space bar will drop the current piece.
+
+The game controls are only active when the game is currently playing. The controls will not work while paused
+    or when the game is lost.
+
+View Controls:
+    -Left mouse button allows for rotation of the game along the X axis. The X axis by default is parallel
+     to the top/bottom of the screen.
+    -Middle mouse button allows for rotation of the game along the Y axis. The Y axis by default is parallel
+     to left/right sides of the screen.
+    -Right mouse button allows for rotation of the game along the Z axis. The Z axis by default is directly
+     into the screen.
+
+     Click and drag any of the buttons for movement. Let go of the button while the mouse is moving result
+     in the rotation to continue at the same rate as when you let go of the mouse. If you let go of the button
+     while not moving the mouse the rotation should be stopped. Moving the mouse up and to the right rotate
+     in the position direction, down and to the left rotate in the negative direction.
+
+     For scaling control, hold down shift and move the mouse left or right. Moving the mouse left will make
+     the game smaller. Moving the mouse right will make the game larger. There is no persistence with scaling.
+     There limits on how far is can scale in or out.
 
 == 3. ALGORITHMS and DESIGN DECISIONS: ===
 
@@ -211,7 +254,18 @@ src
 
 === 5. PROGRAM ASSUMPTIONS: ===
 
-<Insert a short description of any assumptions made>
+That face mode should be the default mode.
+
+When controlling rotating, moving the mouse up and to the right spins in the positive direction, down and
+to the left is negative.
+
+For controlling scaling, up and to the left makes the game smaller, down and to the right make it larger.
+
+None of the game piece controls should work when the game is not active.
+
+The game should not start running.
+
+No menu keys should work while shift is being held down.
 
 === 6. DECLARATION AND IMAGE PERMISSION: ===
 

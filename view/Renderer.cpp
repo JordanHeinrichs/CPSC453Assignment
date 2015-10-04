@@ -48,7 +48,7 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 : QOpenGLWidget(parent)
 , game_(game)
 , refreshTimer_()
-, viewMode_(MultiColored)
+, viewMode_(Face)
 , xAxisRotationRate_(0.0)
 , yAxisRotationRate_(0.0)
 , zAxisRotationRate_(0.0)
@@ -427,7 +427,8 @@ void Renderer::recalculateRotationRates()
     }
     if (timeBetweenMouseMoveScaling_.isValid())
     {
-        scaling_ += (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
+        // Scaling is negated so that negative mouse movements result in the game getting smaller
+        scaling_ -= (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
             timeBetweenMouseMoveScaling_.msecsSinceReference();
         scaling_ = qBound(MINIMUM_SCALING_FACTOR, scaling_, MAXIMUM_SCALING_FACTOR);
         timeBetweenMouseMoveScaling_.restart();
@@ -494,10 +495,7 @@ void Renderer::keyPressEvent(QKeyEvent* event)
     {
         timeBetweenMouseMoveScaling_.start();
     }
-    else
-    {
-        QWidget::keyReleaseEvent(event);
-    }
+    QWidget::keyReleaseEvent(event);
 }
 
 void Renderer::keyReleaseEvent(QKeyEvent* event)
@@ -506,8 +504,5 @@ void Renderer::keyReleaseEvent(QKeyEvent* event)
     {
         timeBetweenMouseMoveScaling_.invalidate();
     }
-    else
-    {
-        QWidget::keyReleaseEvent(event);
-    }
+    QWidget::keyReleaseEvent(event);
 }
