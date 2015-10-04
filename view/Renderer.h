@@ -62,7 +62,6 @@ private:
         Piece4,
         Piece5,
         Piece6,
-        Border,
         Piece0MultiColored,
         Piece1MultiColored,
         Piece2MultiColored,
@@ -70,6 +69,7 @@ private:
         Piece4MultiColored,
         Piece5MultiColored,
         Piece6MultiColored,
+        Border,
         NumberOfColors
     };
 

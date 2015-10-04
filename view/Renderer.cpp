@@ -2,8 +2,6 @@
 #include <QTextStream>
 #include <QOpenGLBuffer>
 #include <cmath>
-#include <cstdlib>
-#include <QTime>
 
 namespace
 {
@@ -276,37 +274,63 @@ void Renderer::setupCube()
 void Renderer::populateCubeColors()
 {
     QList<QColor> colorsToAdd = {Qt::yellow, Qt::red, Qt::blue, Qt::cyan, Qt::magenta,
-        Qt::green, Qt::gray, Qt::darkGray};
+        Qt::green, QColor(255, 165, 0), QColor(139, 126, 102), QColor(192, 255, 62), QColor(118, 238, 198),
+        QColor(0, 104, 139)};
 
-    for (int colorIndex = 0; colorIndex < Piece0MultiColored; ++colorIndex)
+    // Add color face sections
+    for (int pieceIndex = 0; pieceIndex <= Piece6; ++pieceIndex)
     {
         QVector<GLfloat> cubeColor;
         for (int i = 0; i < CUBE_VERTICES.size() / 3; ++i)
         {
             cubeColor << QVector<GLfloat>(
-                {static_cast<GLfloat>(colorsToAdd.at(colorIndex).redF()),
-                static_cast<GLfloat>(colorsToAdd.at(colorIndex).greenF()),
-                static_cast<GLfloat>(colorsToAdd.at(colorIndex).blueF())});
+                {static_cast<GLfloat>(colorsToAdd.at(pieceIndex).redF()),
+                static_cast<GLfloat>(colorsToAdd.at(pieceIndex).greenF()),
+                static_cast<GLfloat>(colorsToAdd.at(pieceIndex).blueF())});
         }
         cubeColors_ << cubeColor;
     }
 
-    // Randomize the colors.
-    qsrand(QTime().msecsSinceStartOfDay());
-    for (int colorIndex = Piece0MultiColored; colorIndex <= Piece6MultiColored; ++colorIndex)
+    // Add multicolor sections
+    int colorIndex = 0;
+    for (int pieceIndex = Piece0MultiColored; pieceIndex <= Piece6MultiColored; ++pieceIndex)
     {
         QVector<GLfloat> cubeColor;
         // Both triangles on the same face are to be the same color.
-        for (int i = 0; i < CUBE_VERTICES.size() / (3 * 3 * 2); ++i)
+        for (int face = 0; face < CUBE_VERTICES.size() / (3 * 3 * 2); ++face)
         {
             QVector<GLfloat> faceColor =
-                {static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX)),
-                static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX)),
-                static_cast<GLfloat>(qrand() / static_cast<float>(RAND_MAX))};
-            cubeColor << faceColor << faceColor << faceColor << faceColor << faceColor << faceColor;
+                {static_cast<GLfloat>(colorsToAdd.at(colorIndex).redF()),
+                static_cast<GLfloat>(colorsToAdd.at(colorIndex).greenF()),
+                static_cast<GLfloat>(colorsToAdd.at(colorIndex).blueF())};
+            for (int i = 0; i < 6; ++i)
+            {
+                cubeColor << faceColor;
+            }
+
+            // cycle through the list of colors
+            if (colorIndex == colorsToAdd.size() - 1)
+            {
+                colorIndex = 0;
+            }
+            else
+            {
+                ++colorIndex;
+            }
         }
         cubeColors_ << cubeColor;
     }
+
+    // Add border color
+    QVector<GLfloat> cubeColor;
+    for (int i = 0; i < CUBE_VERTICES.size() / 3; ++i)
+    {
+        cubeColor << QVector<GLfloat>(
+            {static_cast<GLfloat>(QColor(Qt::darkGray).redF()),
+            static_cast<GLfloat>(QColor(Qt::darkGray).greenF()),
+            static_cast<GLfloat>(QColor(Qt::darkGray).blueF())});
+    }
+    cubeColors_ << cubeColor;
 }
 
 void Renderer::drawCube(int row, int column, PieceId pieceId)
