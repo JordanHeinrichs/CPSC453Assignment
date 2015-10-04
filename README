@@ -1,20 +1,24 @@
 CPSC453 - Assignment 1
 
-NAME:
-UCID Number:
-Tutorial Section:
+NAME: Jordan Heinrichs
+UCID Number: 10074534
+Tutorial Section: T05
 
 === 1. EXECUTION: ===
 
 To compile the program, on the terminal enter the following commands:
 
-	qmake -project QT+=widgets
+    bash
+    source setupBuildEnvironment # Note this requires permissions to create a folder ../release
 	qmake
-	make
+    make
+	make check
+    make install
 
 To run the program, on the terminal enter the following command:
 
-	./a1
+    cd ../release
+	./assignment1
 
 === 2. PROGRAM USE: ===
 
@@ -23,12 +27,187 @@ short-cut keys, mouse movements, menu items, widgets, etc.>
 
 == 3. ALGORITHMS and DESIGN DECISIONS: ===
 
-<Insert a description of the algorithms created and design decisions taken>
+File and class layout:
+    The files were split up in order to do dependency injection for some unit tests.
+    While a project this size does not benefit very much from unit testing, it served to
+    setup the environment to use for future class assignments as well as test out the GTest
+    framework for the UofC Solar Car team. All classes are interfaced and mocked out. The
+    classes and folder structure is set up loosely in a BusinessLogic-Presenter-View layout.
+    For this project the presenter and view were just merged into one.
+
+    The GameTickerService is used to contain all the logic for driving the game engine.
+
+    The WindowUi has all the user interface setup. Since it is very hard to unit test GUI
+    classes it is designed to have as little logic within it as possible. All logic is extracted out
+    into WindowView.
+
+    WindowView is what bridges the business logic with the GUI, it connects the two and its only logic
+    is to do with controlling and responding to the UI.
+
+    Renderer contains only openGl rendering code.
+
+OpenGl in Renderer design decisions:
+    OpenGL 4.2 was used in order to make use of Vertex Array Objects. Each Vertex Buffer Object existed
+    within a vertex array object. This made it simpler since the Vertex Attribute Pointer only needed to be
+    updated once on initialization. All data within the Vertex buffers are stored in a VVVVCCCCNNNN format.
+
+    Color Initialization and generation:
+    I decided to use a vertex array object and its associate buffer object for each color. There is a total of 15 cube objects plus 1 triangle object.
+        -For the cubes the first 7 ones are for face mode have the same
+        color on all faces.
+        -The next 7 are for multicolored mode. The multicolored has a different color per face but all
+        objects in a game piece are the same. The colors for the different faces are chosen by looping
+        through 11 different colors. By choosing the amount of colors as 11, it would require a minimum
+        of 11 objects before two of the cubes are the same. As opposed to choosing 10 where the 1st and
+        the 5th cubes would be identical.
+        - The last cube color is for the borders.
+
+    Transformations:
+    For view rotations the view matrix was rotated with a separate rotation transform for each axis.
+    For view scaling the view was translated along the Z axis less for zooming in and more for zooming out.
+
+    For the triangle translations, the model matrix was transformed once to center the game area around (0,0,0).
+    For the cubes, they initially had the same translation as the triangles but then another translation was
+    applied to create the well and the game pieces. The second translation value depended on the row and column of the game piece that needed to be drawn.
+
+    The projection matrix was not modified from what was given in the initial code.
+
+    Rotation Persistence:
+    Each axis had its own timer keeping track of how much time between mouse position recording.
+    The mouse position was calculated every 33 ms, if the given axis was active then the rate would be
+    calculated from the approximate distance the mouse has traveled and the time it took for the mouse to
+    travel. A dead zone was added so if the mouse was not moved the rotation rate would be zeroed.
+
+    Other notes:
+    OpenGl was set to paint at 30 fps by calling hooking the paint function up to a timer.
+    The shaders were also not modified.
+
+    For data structures, only vectors and arrays were used. For the cubeColors a 2d vector array was
+    used with the first index being the pieceId (0-6 + 0-6 multicolored + border) and the second index was
+    the for the vertices's values.
+
 
 === 4. FILES SUBMITTED: ===
 
-<Insert a list of files that have been submitted by the assignment in case
-there is a discrepancy in the submission>
+src
+├── application
+    ├── application.pro
+    ├── AssignmentApp.cpp
+    ├── AssignmentApp.h
+    └── main.cpp
+├── assignment1.pro
+├── businessLogic
+    ├── businessLogic.pro
+    ├── GameBoard.h
+    ├── game.cpp
+    ├── game.h
+    ├── GameTickerService.cpp
+    ├── GameTickerService.h
+    ├── I_Game.h
+    └── I_GameTickerService.h
+├── common.pri
+├── external
+    ├── external.pro
+    ├── per-fragment-phong.fs.glsl
+    └── per-fragment-phong.vs.glsl
+├── infrastructure
+    ├── ConnectionHelpers.h
+    ├── infrastructure.pro
+    ├── I_Timer.h
+    ├── QtTimer.cpp
+    └── QtTimer.h
+├── README
+├── setupBuildEnvironment
+├── tests
+    ├── gtest
+        ├── include
+            ├── gmock
+                ├── gmock-actions.h
+                ├── gmock-cardinalities.h
+                ├── gmock-generated-actions.h
+                ├── gmock-generated-actions.h.pump
+                ├── gmock-generated-function-mockers.h
+                ├── gmock-generated-function-mockers.h.pump
+                ├── gmock-generated-matchers.h
+                ├── gmock-generated-matchers.h.pump
+                ├── gmock-generated-nice-strict.h
+                ├── gmock-generated-nice-strict.h.pump
+                ├── gmock.h
+                ├── gmock-matchers.h
+                ├── gmock-more-actions.h
+                ├── gmock-more-matchers.h
+                ├── gmock-spec-builders.h
+                └── internal
+                    ├── custom
+                        ├── gmock-generated-actions.h
+                        ├── gmock-generated-actions.h.pump
+                        ├── gmock-matchers.h
+                        └── gmock-port.h
+                    ├── gmock-generated-internal-utils.h
+                    ├── gmock-generated-internal-utils.h.pump
+                    ├── gmock-internal-utils.h
+                    └── gmock-port.h
+            └── gtest
+                ├── gtest-death-test.h
+                ├── gtest.h
+                ├── gtest-message.h
+                ├── gtest-param-test.h
+                ├── gtest-param-test.h.pump
+                ├── gtest_pred_impl.h
+                ├── gtest-printers.h
+                ├── gtest_prod.h
+                ├── gtest-spi.h
+                ├── gtest-test-part.h
+                ├── gtest-typed-test.h
+                └── internal
+                    ├── custom
+                        ├── gtest.h
+                        ├── gtest-port.h
+                        └── gtest-printers.h
+                    ├── gtest-death-test-internal.h
+                    ├── gtest-filepath.h
+                    ├── gtest-internal.h
+                    ├── gtest-linked_ptr.h
+                    ├── gtest-param-util-generated.h
+                    ├── gtest-param-util-generated.h.pump
+                    ├── gtest-param-util.h
+                    ├── gtest-port-arch.h
+                    ├── gtest-port.h
+                    ├── gtest-string.h
+                    ├── gtest-tuple.h
+                    ├── gtest-tuple.h.pump
+                    ├── gtest-type-util.h
+                    └── gtest-type-util.h.pump
+        └── lib
+            ├── libgmock.a
+            └── libgtest.a
+    ├── main.cpp
+    ├── MockGame.cpp
+    ├── MockGame.h
+    ├── MockGameTickerService.cpp
+    ├── MockGameTickerService.h
+    ├── MockRenderer.cpp
+    ├── MockRenderer.h
+    ├── MockTimer.cpp
+    ├── MockTimer.h
+    ├── MockWindowUi.cpp
+    ├── MockWindowUi.h
+    ├── TestGameTickerService.cpp
+    ├── TestGameTickerService.h
+    ├── tests.pro
+    ├── TestWindowView.cpp
+    └── TestWindowView.h
+└── view
+    ├── I_Renderer.h
+    ├── I_WindowUi.h
+    ├── Renderer.cpp
+    ├── Renderer.h
+    ├── view.pro
+    ├── WindowUi.cpp
+    ├── WindowUi.h
+    ├── WindowView.cpp
+    └── WindowView.h
+
 
 === 5. PROGRAM ASSUMPTIONS: ===
 
@@ -38,13 +217,15 @@ there is a discrepancy in the submission>
 
 <Initial the following:>
 
-__ I have read the regulations regarding plagarism. I affirm with my initials
+JH I have read the regulations regarding plagarism. I affirm with my initials
 that I have worked on my own solution to this assignment, and the code I am
 submitting is my own.
 
+    *Google test framework is from the google test project located at https://github.com/google/googletest
+
 <Mark with an X if desired. No marks will be deducted either way>
 
-__ I grant the instructor and/or TAs permission to use images submitted and/or
+X I grant the instructor and/or TAs permission to use images submitted and/or
    assignment screenshots for future CPSC453 courses.
 
 __ If permission has been granted above, I would prefer the images to remain

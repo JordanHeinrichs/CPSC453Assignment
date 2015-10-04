@@ -88,7 +88,7 @@ private:
 
     void activateViewMode();
     void zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const;
-    int calculateDifferenceBetweenMousePoints(const QPoint& point1, const QPoint& point2) const;
+    int calculateMouseTravelDistance(const QPoint& point1, const QPoint& point2) const;
 
 private:
     const I_Game& game_;

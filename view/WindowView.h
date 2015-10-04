@@ -25,7 +25,8 @@ private slots:
     void handleGameActiveStateChanged(bool isGameActive);
 
 private:
-    void setupKeyboardControls();
+    void connectToKeyboardControls();
+    void disconnectFromKeyboardControls();
     void setupGameOptions();
     void setupGameTickerOptions();
     void setupViewControl();

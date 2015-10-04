@@ -80,12 +80,10 @@ void Renderer::resetView()
     zAxisRotationRate_ = 0.0;
 }
 
-#include <stdio.h> // TODO
 void Renderer::initializeGL()
 {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
 
     // sets the background clour
     glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
@@ -128,10 +126,6 @@ void Renderer::paintGL()
     viewMatrix.rotate(yAxisRotation_, 0, 1, 0);
     viewMatrix.rotate(zAxisRotation_, 0, 0, 1);
     glUniformMatrix4fv(viewMatrixUniform_, 1, false, viewMatrix.data());
-
-    QMatrix4x4 modelMatrix;
-    modelMatrix.translate(-5.0f, -12.0f, 0.0f);
-    glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
     activateViewMode();
     drawBorderTriangles();
@@ -233,6 +227,10 @@ void Renderer::generateBorderTriangles()
 
 void Renderer::drawBorderTriangles()
 {
+    QMatrix4x4 modelMatrix;
+    modelMatrix.translate(-5.0f, -12.0f, 0.0f);
+    glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
+
     glBindVertexArray(triangleVao_);
     glDrawArrays(GL_TRIANGLES, 0, triangleVertices_.size() / 3);
 }
@@ -341,7 +339,6 @@ void Renderer::drawCube(int row, int column, PieceId pieceId)
     modelMatrix.translate(column, row, 0.0f);
     glUniformMatrix4fv(modelMatrixUniform_, 1, false, modelMatrix.data());
 
-    // printf("Drawing cube with pieceId %d\n", pieceId);
     glBindVertexArray(boxVertexArrayObjects_[pieceId]);
     glDrawArrays(GL_TRIANGLES, 0, CUBE_VERTICES.size() / 3);
 }
@@ -406,7 +403,7 @@ void Renderer::activateViewMode()
 void Renderer::recalculateRotationRates()
 {
     const QPoint currentMousePosition = this->mapFromGlobal(QCursor::pos());
-    const int distanceMouseMoved = calculateDifferenceBetweenMousePoints(currentMousePosition, lastMousePosition_);
+    const int distanceMouseMoved = calculateMouseTravelDistance(currentMousePosition, lastMousePosition_);
     if (timeBetweenMouseMoveX_.isValid())
     {
         xAxisRotationRate_ = (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
@@ -447,7 +444,7 @@ void Renderer::zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const
     }
 }
 
-int Renderer::calculateDifferenceBetweenMousePoints(const QPoint& point1, const QPoint& point2) const
+int Renderer::calculateMouseTravelDistance(const QPoint& point1, const QPoint& point2) const
 {
     QPoint mousePointDelta = point1 - point2;
     // This is a non-absolute manhattan length. Up and to the right will be positive.

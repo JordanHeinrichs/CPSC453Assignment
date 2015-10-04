@@ -16,7 +16,6 @@ WindowView::WindowView(I_Game& game,
 , renderer_(renderer)
 , gameTickerService_(gameTickerService)
 {
-    setupKeyboardControls();
     setupGameOptions();
     setupGameTickerOptions();
     setupViewControl();
@@ -57,21 +56,32 @@ void WindowView::handleGameActiveStateChanged(bool isGameActive)
 {
     if (isGameActive)
     {
+        connectToKeyboardControls();
         windowUi_.pauseAction().setText("&Pause");
     }
     else
     {
+        disconnectFromKeyboardControls();
         windowUi_.pauseAction().setText("Un&pause");
     }
 }
 
-void WindowView::setupKeyboardControls()
+void WindowView::connectToKeyboardControls()
 {
-    safeConnect(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
-    safeConnect(&windowUi_, SIGNAL(movePieceRightRequested()), &game_, SLOT(moveRight()));
-    safeConnect(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
-    safeConnect(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
-    safeConnect(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
+    safeConnectUnique(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
+    safeConnectUnique(&windowUi_, SIGNAL(movePieceRightRequested()), &game_, SLOT(moveRight()));
+    safeConnectUnique(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
+    safeConnectUnique(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
+    safeConnectUnique(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
+}
+
+void WindowView::disconnectFromKeyboardControls()
+{
+    safeDisconnect(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
+    safeDisconnect(&windowUi_, SIGNAL(movePieceRightRequested()), &game_, SLOT(moveRight()));
+    safeDisconnect(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
+    safeDisconnect(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
+    safeDisconnect(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
 }
 
 void WindowView::setupGameOptions()
