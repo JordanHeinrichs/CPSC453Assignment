@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include "gmock/gmock.h"
 #include "view/I_Renderer.h"
 
@@ -12,6 +13,8 @@ public:
 
     MOCK_METHOD1(setViewMode, void(ViewMode viewmode));
 
+    MOCK_METHOD0(resetViewSlot, void());
+
 public slots:
-    MOCK_METHOD0(resetView, void());
+    void resetView();
 };

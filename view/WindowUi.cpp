@@ -43,7 +43,7 @@ WindowUi::~WindowUi()
 {
 }
 
-QAction& WindowUi::pauseAction() const
+QAction& WindowUi::pauseAction()
 {
     return *pauseAction_;
 }

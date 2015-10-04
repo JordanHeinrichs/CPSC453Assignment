@@ -15,7 +15,7 @@ public:
     WindowUi(QWidget* renderer, QWidget* parent = 0);
     virtual ~WindowUi();
 
-    QAction& pauseAction() const;
+    QAction& pauseAction();
 
 private slots:
     void setDrawMode(QAction* action);

@@ -1,8 +1,8 @@
 TEMPLATE = app
 QT+=widgets testlib
 
-HEADERS += TestGameTickerService.h Mock*.h
-SOURCES += main.cpp TestGameTickerService.cpp Mock*.cpp
+HEADERS += Test*.h Mock*.h
+SOURCES += main.cpp Test*.cpp Mock*.cpp
 
 QMAKE_CXXFLAGS += -Werror
 

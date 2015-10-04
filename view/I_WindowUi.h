@@ -11,7 +11,7 @@ class I_WindowUi
 public:
     virtual ~I_WindowUi() {}
 
-    virtual QAction& pauseAction() const = 0;
+    virtual QAction& pauseAction() = 0;
 
 protected: // signals:
     virtual void newGameRequested() = 0;

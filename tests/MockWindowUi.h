@@ -1,17 +1,18 @@
 #pragma once
 
 #include <QAction>
+#include <QWidget>
 #include "gmock/gmock.h"
 #include "view/I_WindowUi.h"
 
-class MockWindowUi : public QObject, public I_WindowUi
+class MockWindowUi : public QWidget, public I_WindowUi
 {
     Q_OBJECT
 public:
     MockWindowUi();
     virtual ~MockWindowUi();
 
-    QAction& pauseAction() const;
+    QAction& pauseAction();
 
     void emitNewGameRequested();
     void emitResetRequested();

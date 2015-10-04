@@ -1,6 +1,7 @@
 #include "MockWindowUi.h"
 
 MockWindowUi::MockWindowUi()
+: pauseAction_(this)
 {
 }
 
@@ -8,7 +9,7 @@ MockWindowUi::~MockWindowUi()
 {
 }
 
-QAction& MockWindowUi::pauseAction() const
+QAction& MockWindowUi::pauseAction()
 {
     return pauseAction_;
 }
