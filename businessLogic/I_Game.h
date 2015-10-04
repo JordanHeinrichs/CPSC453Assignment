@@ -26,7 +26,4 @@ public:
 
     virtual int get(int r, int c) const = 0;
     virtual int& get(int r, int c) = 0;
-
-signals:
-    void stateChanged();
 };

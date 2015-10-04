@@ -85,6 +85,7 @@ void Renderer::initializeGL()
 {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     // sets the background clour
     glClearColor(0.7f, 0.7f, 1.0f, 1.0f);
