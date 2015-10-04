@@ -160,7 +160,7 @@ void WindowUi::createGameMenu()
     slowDownAction->setStatusTip("Slows down the game.");
     connect(slowDownAction, SIGNAL(triggered()), this, SIGNAL(slowDownGameRequested()));
 
-    QAction* autoIncreaseSpeedAction = new QAction("Slow down", this);
+    QAction* autoIncreaseSpeedAction = new QAction("Auto increase speed", this);
     autoIncreaseSpeedAction->setShortcut(QKeySequence(Qt::Key_A));
     autoIncreaseSpeedAction->setStatusTip("Will slowly increase the game speed over time.");
     connect(autoIncreaseSpeedAction, SIGNAL(triggered()), this, SIGNAL(autoIncreaseGameSpeedRequested()));

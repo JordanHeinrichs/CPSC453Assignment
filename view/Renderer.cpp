@@ -12,6 +12,11 @@ namespace
     const int REFRESH_PERIOD = 33;
     const int GAME_SPACE_EMPTY = -1;
 
+    const double MOUSE_MOVEMENT_SCALING_FACTOR = 1.0e7;
+    const double DEFAULT_SCALING_FACTOR  = 50.0;
+    const double MINIMUM_SCALING_FACTOR = 40.0;
+    const double MAXIMUM_SCALING_FACTOR = 300.0;
+
     const QVector<GLfloat> CUBE_VERTICES = {
         0.0, 0.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 0.0,
         0.0, 1.0, 0.0,   0.0, 0.0, 1.0,   0.0, 1.0, 1.0,
@@ -46,14 +51,15 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 , game_(game)
 , refreshTimer_()
 , viewMode_(MultiColored)
-, scalingActive_(false)
 , xAxisRotationRate_(0.0)
 , yAxisRotationRate_(0.0)
 , zAxisRotationRate_(0.0)
 , xAxisRotation_(0.0)
 , yAxisRotation_(0.0)
 , zAxisRotation_(0.0)
+, scaling_(DEFAULT_SCALING_FACTOR)
 {
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 Renderer::~Renderer()
@@ -70,6 +76,7 @@ void Renderer::resetView()
     xAxisRotation_ = 0.0;
     yAxisRotation_ = 0.0;
     zAxisRotation_ = 0.0;
+    scaling_ = DEFAULT_SCALING_FACTOR;
     xAxisRotationRate_ = 0.0;
     yAxisRotationRate_ = 0.0;
     zAxisRotationRate_ = 0.0;
@@ -113,7 +120,7 @@ void Renderer::paintGL()
     // camera away from the origin.  We'll draw the game at the
     // origin, and we need to back up to see it.
     QMatrix4x4 viewMatrix;
-    viewMatrix.translate(0.0f, 0.0f, -40.0f);
+    viewMatrix.translate(0.0f, 0.0f, -scaling_);
 
     xAxisRotation_ += xAxisRotationRate_;
     yAxisRotation_ += yAxisRotationRate_;
@@ -375,26 +382,33 @@ void Renderer::recalculateRotationRates()
 {
     const QPoint currentMousePosition = this->mapFromGlobal(QCursor::pos());
     const int distanceMouseMoved = calculateDifferenceBetweenMousePoints(currentMousePosition, lastMousePosition_);
-    if (timeBetweenMouseMoveXEvents_.isValid())
+    if (timeBetweenMouseMoveX_.isValid())
     {
-        xAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
-            timeBetweenMouseMoveXEvents_.msecsSinceReference();
+        xAxisRotationRate_ = (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
+            timeBetweenMouseMoveX_.msecsSinceReference();
         zeroAxisRotationRateIfWithinDeadZone(xAxisRotationRate_);
-        timeBetweenMouseMoveXEvents_.restart();
+        timeBetweenMouseMoveX_.restart();
     }
-    if (timeBetweenMouseMoveYEvents_.isValid())
+    if (timeBetweenMouseMoveY_.isValid())
     {
-        yAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
-            timeBetweenMouseMoveYEvents_.msecsSinceReference();
+        yAxisRotationRate_ = (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
+            timeBetweenMouseMoveY_.msecsSinceReference();
         zeroAxisRotationRateIfWithinDeadZone(yAxisRotationRate_);
-        timeBetweenMouseMoveYEvents_.restart();
+        timeBetweenMouseMoveY_.restart();
     }
-    if (timeBetweenMouseMoveZEvents_.isValid())
+    if (timeBetweenMouseMoveZ_.isValid())
     {
-        zAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
-            timeBetweenMouseMoveZEvents_.msecsSinceReference();
+        zAxisRotationRate_ = (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
+            timeBetweenMouseMoveZ_.msecsSinceReference();
         zeroAxisRotationRateIfWithinDeadZone(zAxisRotationRate_);
-        timeBetweenMouseMoveZEvents_.restart();
+        timeBetweenMouseMoveZ_.restart();
+    }
+    if (timeBetweenMouseMoveScaling_.isValid())
+    {
+        scaling_ += (distanceMouseMoved * MOUSE_MOVEMENT_SCALING_FACTOR) /
+            timeBetweenMouseMoveScaling_.msecsSinceReference();
+        scaling_ = qBound(MINIMUM_SCALING_FACTOR, scaling_, MAXIMUM_SCALING_FACTOR);
+        timeBetweenMouseMoveScaling_.restart();
     }
 
     lastMousePosition_ = currentMousePosition;
@@ -418,16 +432,16 @@ int Renderer::calculateDifferenceBetweenMousePoints(const QPoint& point1, const 
 
 void Renderer::mousePressEvent(QMouseEvent* event)
 {
-    switch(event->button())
+    switch (event->button())
     {
     case Qt::LeftButton:
-        timeBetweenMouseMoveXEvents_.start();
+        timeBetweenMouseMoveX_.start();
         break;
     case Qt::MiddleButton:
-        timeBetweenMouseMoveYEvents_.start();
+        timeBetweenMouseMoveY_.start();
         break;
     case Qt::RightButton:
-        timeBetweenMouseMoveZEvents_.start();
+        timeBetweenMouseMoveZ_.start();
         break;
     default:
         break;
@@ -436,18 +450,42 @@ void Renderer::mousePressEvent(QMouseEvent* event)
 
 void Renderer::mouseReleaseEvent(QMouseEvent* event)
 {
-    switch(event->button())
+    switch (event->button())
     {
     case Qt::LeftButton:
-        timeBetweenMouseMoveXEvents_.invalidate();
+        timeBetweenMouseMoveX_.invalidate();
         break;
     case Qt::MiddleButton:
-        timeBetweenMouseMoveYEvents_.invalidate();
+        timeBetweenMouseMoveY_.invalidate();
         break;
     case Qt::RightButton:
-        timeBetweenMouseMoveZEvents_.invalidate();
+        timeBetweenMouseMoveZ_.invalidate();
         break;
     default:
         break;
+    }
+}
+
+void Renderer::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Shift)
+    {
+        timeBetweenMouseMoveScaling_.start();
+    }
+    else
+    {
+        QWidget::keyReleaseEvent(event);
+    }
+}
+
+void Renderer::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Shift)
+    {
+        timeBetweenMouseMoveScaling_.invalidate();
+    }
+    else
+    {
+        QWidget::keyReleaseEvent(event);
     }
 }

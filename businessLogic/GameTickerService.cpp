@@ -63,14 +63,14 @@ void GameTickerService::unpauseGame()
 void GameTickerService::increaseRate()
 {
     tickTimer_.setInterval(qBound(MINIMUM_TICK_INTERVAL,
-        tickTimer_.interval() + TICK_INTERVAL_ADJUSTMENT_AMOUNT,
+        tickTimer_.interval() - TICK_INTERVAL_ADJUSTMENT_AMOUNT,
         MAXIMUM_TICK_INTERVAL));
 }
 
 void GameTickerService::decreaseRate()
 {
     tickTimer_.setInterval(qBound(MINIMUM_TICK_INTERVAL,
-        tickTimer_.interval() - TICK_INTERVAL_ADJUSTMENT_AMOUNT,
+        tickTimer_.interval() + TICK_INTERVAL_ADJUSTMENT_AMOUNT,
         MAXIMUM_TICK_INTERVAL));
     stopAutoIncreasing();
 }

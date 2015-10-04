@@ -44,6 +44,8 @@ protected:
 
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 
 private slots:
     // Called when the window needs to be redrawn
@@ -118,7 +120,6 @@ private:
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
 
-    bool scalingActive_;
 
     double xAxisRotationRate_;
     double yAxisRotationRate_;
@@ -127,10 +128,12 @@ private:
     double xAxisRotation_;
     double yAxisRotation_;
     double zAxisRotation_;
+    double scaling_;
 
     QPoint lastMousePosition_;
 
-    QElapsedTimer timeBetweenMouseMoveXEvents_;
-    QElapsedTimer timeBetweenMouseMoveYEvents_;
-    QElapsedTimer timeBetweenMouseMoveZEvents_;
+    QElapsedTimer timeBetweenMouseMoveX_;
+    QElapsedTimer timeBetweenMouseMoveY_;
+    QElapsedTimer timeBetweenMouseMoveZ_;
+    QElapsedTimer timeBetweenMouseMoveScaling_;
 };
