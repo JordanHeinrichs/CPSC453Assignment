@@ -120,7 +120,6 @@ private:
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
 
-
     double xAxisRotationRate_;
     double yAxisRotationRate_;
     double zAxisRotationRate_;

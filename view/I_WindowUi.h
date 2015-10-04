@@ -14,18 +14,18 @@ public:
     virtual QAction& pauseAction() const = 0;
 
 protected: // signals:
-    void newGameRequested();
-    void resetRequested();
-    void wireframeViewModeRequested();
-    void faceViewModeRequested();
-    void multicolouredViewModeRequested();
-    void speedUpGameRequested();
-    void slowDownGameRequested();
-    void autoIncreaseGameSpeedRequested();
+    virtual void newGameRequested() = 0;
+    virtual void resetRequested() = 0;
+    virtual void wireframeViewModeRequested() = 0;
+    virtual void faceViewModeRequested() = 0;
+    virtual void multicolouredViewModeRequested() = 0;
+    virtual void speedUpGameRequested() = 0;
+    virtual void slowDownGameRequested() = 0;
+    virtual void autoIncreaseGameSpeedRequested() = 0;
 
-    void movePieceLeftRequested();
-    void movePieceRightRequested();
-    void rotatePieceCounterClockwiseRequested();
-    void rotatePieceClockwiseRequested();
-    void dropPieceRequested();
+    virtual void movePieceLeftRequested() = 0;
+    virtual void movePieceRightRequested() = 0;
+    virtual void rotatePieceCounterClockwiseRequested() = 0;
+    virtual void rotatePieceClockwiseRequested() = 0;
+    virtual void dropPieceRequested() = 0;
 };
