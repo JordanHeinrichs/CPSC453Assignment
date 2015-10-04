@@ -28,6 +28,7 @@ private:
     void setupKeyboardControls();
     void setupGameOptions();
     void setupGameTickerOptions();
+    void setupViewControl();
 
 private:
     I_Game& game_;

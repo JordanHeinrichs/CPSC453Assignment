@@ -46,9 +46,6 @@ Renderer::Renderer(const I_Game& game, QWidget *parent)
 , game_(game)
 , refreshTimer_()
 , viewMode_(MultiColored)
-, xAxisRotationActive_(false)
-, yAxisRotationActive_(false)
-, zAxisRotationActive_(false)
 , scalingActive_(false)
 , xAxisRotationRate_(0.0)
 , yAxisRotationRate_(0.0)
@@ -66,6 +63,16 @@ Renderer::~Renderer()
 void Renderer::setViewMode(ViewMode viewMode)
 {
     viewMode_ = viewMode;
+}
+
+void Renderer::resetView()
+{
+    xAxisRotation_ = 0.0;
+    yAxisRotation_ = 0.0;
+    zAxisRotation_ = 0.0;
+    xAxisRotationRate_ = 0.0;
+    yAxisRotationRate_ = 0.0;
+    zAxisRotationRate_ = 0.0;
 }
 
 #include <stdio.h> // TODO
@@ -367,26 +374,26 @@ void Renderer::activateViewMode()
 void Renderer::recalculateRotationRates()
 {
     const QPoint currentMousePosition = this->mapFromGlobal(QCursor::pos());
-    QPoint mousePointDelta = currentMousePosition - lastMousePosition_;
+    const int distanceMouseMoved = calculateDifferenceBetweenMousePoints(currentMousePosition, lastMousePosition_);
     if (timeBetweenMouseMoveXEvents_.isValid())
     {
-        xAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+        xAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
             timeBetweenMouseMoveXEvents_.msecsSinceReference();
-        zeroAxisRotationRateIfWithinDeadZone(xAxisRotation_);
+        zeroAxisRotationRateIfWithinDeadZone(xAxisRotationRate_);
         timeBetweenMouseMoveXEvents_.restart();
     }
     if (timeBetweenMouseMoveYEvents_.isValid())
     {
-        yAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+        yAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
             timeBetweenMouseMoveYEvents_.msecsSinceReference();
-        zeroAxisRotationRateIfWithinDeadZone(yAxisRotation_);
+        zeroAxisRotationRateIfWithinDeadZone(yAxisRotationRate_);
         timeBetweenMouseMoveYEvents_.restart();
     }
     if (timeBetweenMouseMoveZEvents_.isValid())
     {
-        zAxisRotationRate_ = (mousePointDelta.manhattanLength() * 1.0e7) /
+        zAxisRotationRate_ = (distanceMouseMoved * 1.0e7) /
             timeBetweenMouseMoveZEvents_.msecsSinceReference();
-        zeroAxisRotationRateIfWithinDeadZone(zAxisRotation_);
+        zeroAxisRotationRateIfWithinDeadZone(zAxisRotationRate_);
         timeBetweenMouseMoveZEvents_.restart();
     }
 
@@ -395,10 +402,18 @@ void Renderer::recalculateRotationRates()
 
 void Renderer::zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const
 {
-    if (rotationRate < 0.5)
+    if (qAbs(rotationRate) < 0.05)
     {
         rotationRate = 0.0;
     }
+}
+
+int Renderer::calculateDifferenceBetweenMousePoints(const QPoint& point1, const QPoint& point2) const
+{
+    QPoint mousePointDelta = point1 - point2;
+    // This is a non-absolute manhattan length. Up and to the right will be positive.
+    // Down and to the left is negative.
+    return mousePointDelta.x() + mousePointDelta.y();
 }
 
 void Renderer::mousePressEvent(QMouseEvent* event)

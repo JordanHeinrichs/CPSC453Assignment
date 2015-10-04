@@ -17,4 +17,7 @@ public:
     };
 
     virtual void setViewMode(ViewMode viewMode) = 0;
+
+public: //slots:
+    virtual void resetView() = 0;
 };

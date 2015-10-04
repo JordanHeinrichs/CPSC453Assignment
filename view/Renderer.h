@@ -32,6 +32,9 @@ public:
 
     void setViewMode(ViewMode viewMode);
 
+public slots:
+    void resetView();
+
 protected:
     // Called when OpenGL is first initialized
     void initializeGL();
@@ -83,6 +86,7 @@ private:
 
     void activateViewMode();
     void zeroAxisRotationRateIfWithinDeadZone(double& rotationRate) const;
+    int calculateDifferenceBetweenMousePoints(const QPoint& point1, const QPoint& point2) const;
 
 private:
     const I_Game& game_;
@@ -114,9 +118,6 @@ private:
     // helper function for loading shaders
     GLuint loadShader(GLenum type, const char *source);
 
-    bool xAxisRotationActive_;
-    bool yAxisRotationActive_;
-    bool zAxisRotationActive_;
     bool scalingActive_;
 
     double xAxisRotationRate_;
