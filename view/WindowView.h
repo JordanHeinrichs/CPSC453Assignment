@@ -23,10 +23,12 @@ private slots:
 
     void handlePauseGameTriggered();
     void handleGameActiveStateChanged(bool isGameActive);
+    void handleScoreChanged(int score);
 
 private:
     void connectToKeyboardControls();
     void disconnectFromKeyboardControls();
+    void connectToGame();
     void setupGameOptions();
     void setupGameTickerOptions();
     void setupViewControl();

@@ -24,5 +24,5 @@ public:
     MOCK_CONST_METHOD2(get, int(int, int));
     MOCK_METHOD2(get, int&(int, int));
 
-    void emitStateChanged();
+    void emitScoreChanged(int score);
 };

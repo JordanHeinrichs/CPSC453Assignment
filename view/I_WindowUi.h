@@ -5,6 +5,7 @@
 */
 
 class QAction;
+class QLabel;
 
 class I_WindowUi
 {
@@ -12,6 +13,7 @@ public:
     virtual ~I_WindowUi() {}
 
     virtual QAction& pauseAction() = 0;
+    virtual QLabel& scoreLabel() = 0;
 
 protected: // signals:
     virtual void newGameRequested() = 0;

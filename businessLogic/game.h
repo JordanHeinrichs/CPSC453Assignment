@@ -123,6 +123,8 @@ private:
   int py_;
 
   int* board_;
+
+  int score_;
 };
 
 #endif // GAME_H

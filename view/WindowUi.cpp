@@ -2,6 +2,7 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QVBoxLayout>
@@ -25,7 +26,17 @@ WindowUi::WindowUi(QWidget* renderer, QWidget* parent)
     setWindowTitle("CPSC453: Tetromino Apocalypse");
 
     // Setup the application's widget collection
-    QVBoxLayout * layout = new QVBoxLayout();
+    QVBoxLayout* layout = new QVBoxLayout();
+
+    // Add score label
+    QHBoxLayout* scoreLayout = new QHBoxLayout();
+    scoreLabel_ = new QLabel("0", this);
+    QSpacerItem* spacer = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    scoreLayout->addSpacerItem(spacer);
+    scoreLayout->addWidget(new QLabel("Score: ", this));
+    scoreLayout->addWidget(scoreLabel_);
+    // scoreLayout->addSpacerItem(spacer);
+    layout->addLayout(scoreLayout);
 
     // Add renderer
     layout->addWidget(renderer);
@@ -46,6 +57,11 @@ WindowUi::~WindowUi()
 QAction& WindowUi::pauseAction()
 {
     return *pauseAction_;
+}
+
+QLabel& WindowUi::scoreLabel()
+{
+    return *scoreLabel_;
 }
 
 void WindowUi::setDrawMode(QAction* action)

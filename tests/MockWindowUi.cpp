@@ -1,7 +1,8 @@
 #include "MockWindowUi.h"
 
 MockWindowUi::MockWindowUi()
-: pauseAction_(this)
+: pauseAction_(new QAction(this))
+, scoreLabel_(new QLabel(this))
 {
 }
 
@@ -11,7 +12,12 @@ MockWindowUi::~MockWindowUi()
 
 QAction& MockWindowUi::pauseAction()
 {
-    return pauseAction_;
+    return *pauseAction_;
+}
+
+QLabel& MockWindowUi::scoreLabel()
+{
+    return *scoreLabel_;
 }
 
 void MockWindowUi::emitNewGameRequested()

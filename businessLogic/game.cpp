@@ -147,16 +147,20 @@ Game::Game(int width, int height)
   : board_width_(width)
   , board_height_(height)
   , stopped_(false)
+  , score_(0)
 {
   int sz = board_width_ * (board_height_+4);
 
   board_ = new int[ sz ];
   std::fill(board_, board_ + sz, -1);
   generateNewPiece();
+  emit scoreChanged(score_);
 }
 
 void Game::reset()
 {
+  score_ = 0;
+  emit scoreChanged(score_);
   stopped_ = false;
   std::fill(board_, board_ + (board_width_*(board_height_+4)), -1);
   generateNewPiece();
@@ -306,6 +310,8 @@ int Game::tick()
     } else {
       int rm = collapse();
       generateNewPiece();
+      score_ += rm;
+      emit scoreChanged(score_);
       return rm;
     }
   } else {

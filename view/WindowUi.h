@@ -16,6 +16,7 @@ public:
     virtual ~WindowUi();
 
     QAction& pauseAction();
+    QLabel& scoreLabel();
 
 private slots:
     void setDrawMode(QAction* action);
@@ -48,6 +49,7 @@ private:
 
 private:
     QAction* pauseAction_;
+    QLabel* scoreLabel_;
 
     QAction* wireframeModeAction_;
     QAction* faceModeAction_;

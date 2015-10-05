@@ -1,4 +1,5 @@
 #include <QAction>
+#include <QLabel>
 
 #include "businessLogic/I_Game.h"
 #include "businessLogic/I_GameTickerService.h"
@@ -17,6 +18,7 @@ WindowView::WindowView(I_Game& game,
 , gameTickerService_(gameTickerService)
 {
     setupGameOptions();
+    connectToGame();
     setupGameTickerOptions();
     setupViewControl();
 }
@@ -66,6 +68,11 @@ void WindowView::handleGameActiveStateChanged(bool isGameActive)
     }
 }
 
+void WindowView::handleScoreChanged(int score)
+{
+    windowUi_.scoreLabel().setText(QString::number(score));
+}
+
 void WindowView::connectToKeyboardControls()
 {
     safeConnectUnique(&windowUi_, SIGNAL(movePieceLeftRequested()), &game_, SLOT(moveLeft()));
@@ -82,6 +89,11 @@ void WindowView::disconnectFromKeyboardControls()
     safeDisconnect(&windowUi_, SIGNAL(rotatePieceCounterClockwiseRequested()), &game_, SLOT(rotateCCW()));
     safeDisconnect(&windowUi_, SIGNAL(rotatePieceClockwiseRequested()), &game_, SLOT(rotateCW()));
     safeDisconnect(&windowUi_, SIGNAL(dropPieceRequested()), &game_, SLOT(drop()));
+}
+
+void WindowView::connectToGame()
+{
+    safeConnect(&game_, SIGNAL(scoreChanged(int)), this, SLOT(handleScoreChanged(int)));
 }
 
 void WindowView::setupGameOptions()

@@ -68,6 +68,10 @@ View Controls:
      the game smaller. Moving the mouse right will make the game larger. There is no persistence with scaling.
      There limits on how far is can scale in or out.
 
+BONUS attempted:
+    Score was added: The score increments for each line that was removed. The scored is zeroed when starting
+    a new game.
+
 == 3. ALGORITHMS and DESIGN DECISIONS: ===
 
 File and class layout:
@@ -128,7 +132,6 @@ OpenGl in Renderer design decisions:
     For data structures, only vectors and arrays were used. For the cubeColors a 2d vector array was
     used with the first index being the pieceId (0-6 + 0-6 multicolored + border) and the second index was
     the for the vertices's values.
-
 
 === 4. FILES SUBMITTED: ===
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAction>
+#include <QLabel>
 #include <QWidget>
 #include "gmock/gmock.h"
 #include "view/I_WindowUi.h"
@@ -13,6 +14,7 @@ public:
     virtual ~MockWindowUi();
 
     QAction& pauseAction();
+    QLabel& scoreLabel();
 
     void emitNewGameRequested();
     void emitResetRequested();
@@ -44,6 +46,7 @@ signals:
     void rotatePieceClockwiseRequested();
     void dropPieceRequested();
 
-public: // public for testing.
-    QAction pauseAction_;
+private:
+    QAction* pauseAction_;
+    QLabel* scoreLabel_;
 };
